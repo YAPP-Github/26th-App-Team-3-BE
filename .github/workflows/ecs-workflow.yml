@@ -59,5 +59,4 @@ jobs:
           task-definition: ${{ steps.task-def.outputs.task-definition }}  # ECS 태스크 정의 파일을 지정합니다.
           service: ${{ secrets.ECS_SERVICE_NAME }}  # ECS 서비스 이름을 지정합니다.
           cluster: ${{ secrets.ECS_CLUSTER_NAME }}  # ECS 클러스터 이름을 지정합니다.
-          container-name: ${{ secrets.ECS_CONTAINER_NAME }}
           wait-for-service-stability: true  # 서비스가 안정화될 때까지 대기합니다.
