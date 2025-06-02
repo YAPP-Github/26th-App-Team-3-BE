@@ -37,11 +37,12 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build Docker image and tag, push image to Amazon ECR
+        id: build-image
         run: |
           docker build -t ${{ secrets.ECR_REPO_NAME }} .  # Docker 이미지를 빌드합니다.
           docker tag ${{ secrets.ECR_REPO_NAME }}:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:latest  # 이미지를 ECR 리포지토리로 태깅합니다.
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:latest  # 이미지를 ECR에 푸시합니다.
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:latest"
+          echo "image=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:latest" >> $GITHUB_OUTPUT
 
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
