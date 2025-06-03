@@ -4,7 +4,7 @@
   "containerDefinitions": [
     {
       "name": "bitnagil",
-      "image": "750819668269.dkr.ecr.ap-northeast-2.amazonaws.com/bitnagil:latest",
+      "image": "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:latest",
       "cpu": 1.5,
       "portMappings": [
         {
@@ -35,8 +35,8 @@
       "systemControls": []
     }
   ],
-  "taskRoleArn": "arn:aws:iam::750819668269:role/ecsTaskExecutionRole",
-  "executionRoleArn": "arn:aws:iam::750819668269:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/ecsTaskExecutionRole",
+  "executionRoleArn": "arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/ecsTaskExecutionRole",
   "requiresCompatibilities": [
     "EC2"
   ],
