@@ -44,11 +44,6 @@ jobs:
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:latest  # 이미지를 ECR에 푸시합니다.
           echo "image=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:latest" >> $GITHUB_OUTPUT
 
-      - name: Replace Role ARNs in task definition JSON
-        run: |
-          sed -i "s|TASK_ROLE_ARN_PLACEHOLDER|arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/ecsTaskExecutionRole|g" task-definition.json
-          sed -i "s|EXECUTION_ROLE_ARN_PLACEHOLDER|arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/ecsTaskExecutionRole|g" task-definition.json
-
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1

@@ -34,8 +34,8 @@
       "systemControls": []
     }
   ],
-  "taskRoleArn": "TASK_ROLE_ARN_PLACEHOLDER",
-  "executionRoleArn": "EXECUTION_ROLE_ARN_PLACEHOLDER",
+  "taskRoleArn": "arn:aws:iam::750819668269:role/ecsTaskExecutionRole",
+  "executionRoleArn": "arn:aws:iam::750819668269:role/ecsTaskExecutionRole",
   "requiresCompatibilities": [
     "EC2"
   ],
