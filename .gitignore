@@ -1,10 +1,10 @@
 # Gradle
-.gradle/
+.gradle
 /build/
 !gradle/wrapper/gradle-wrapper.jar
 
 # IDEs
-.idea/
+.idea
 *.iml
 *.ipr
 *.iws
