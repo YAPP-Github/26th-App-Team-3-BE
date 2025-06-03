@@ -4,8 +4,7 @@
   "containerDefinitions": [
     {
       "name": "bitnagil",
-      "image": "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:latest",
-      "cpu": 1.5,
+      "cpu": 1024,
       "portMappings": [
         {
           "containerPort": 8080,
@@ -40,7 +39,7 @@
   "requiresCompatibilities": [
     "EC2"
   ],
-  "cpu": "256",
+  "cpu": "1024",
   "memory": "512",
   "runtimePlatform": {
     "cpuArchitecture": "X86_64",
