@@ -1,19 +1,7 @@
-# application.yml
-
-server:
-  port: 8081
-
 spring:
   config:
-    activate:
-      on-profile: dev
-
----
-
-server:
-  port: 8080
-
-spring:
-  config:
-    activate:
-      on-profile: prod
+    import:
+      # 서브모듈의 yml을 불러옵니다.
+      - file:../config/local/application-local.yml
+      - file:../config/dev/application-dev.yml
+      - file:../config/prod/application-prod.yml
