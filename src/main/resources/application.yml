@@ -1,0 +1,18 @@
+# application.yml
+spring:
+  profiles:
+    active: prod  # 기본값은 prod
+
+---
+
+spring:
+  profiles: dev
+server:
+  port: 8081
+
+---
+
+spring:
+  profiles: prod
+server:
+  port: 8080
