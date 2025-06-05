@@ -11,8 +11,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v3
 
       # 1. JDK 17 세팅
       - name: Set up JDK 17
@@ -78,12 +76,12 @@ jobs:
           container-name: ${{ secrets.ECS_CONTAINER_NAME_PROD }}
           image: ${{ steps.build-image-release.outputs.image }}
 
-      - name: Fill in the new image ID in the Amazon ECS task definition - release
+      - name: Fill in the new image ID in the Amazon ECS task definition - develop
         if: github.ref == 'refs/heads/develop'
         id: task-def-develop
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: task-definition-prod.json
+          task-definition: task-definition-dev.json
           container-name: ${{ secrets.ECS_CONTAINER_NAME_DEV }}
           image: ${{ steps.build-image-develop.outputs.image }}
 
@@ -92,7 +90,7 @@ jobs:
         if: github.ref == 'refs/heads/release'
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}  # ECS 태스크 정의 파일을 지정합니다.
+          task-definition: ${{ steps.task-def-release.outputs.task-definition }}  # ECS 태스크 정의 파일을 지정합니다.
           service: ${{ secrets.ECS_SERVICE_NAME_PROD }}
           cluster: ${{ secrets.ECS_CLUSTER_NAME }}
           wait-for-service-stability: true  # 서비스가 안정화될 때까지 대기합니다.
@@ -101,7 +99,7 @@ jobs:
         if: github.ref == 'refs/heads/develop'
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}  # ECS 태스크 정의 파일을 지정합니다.
+          task-definition: ${{ steps.task-def-develop.outputs.task-definition }}  # ECS 태스크 정의 파일을 지정합니다.
           service: ${{ secrets.ECS_SERVICE_NAME_DEV }}
           cluster: ${{ secrets.ECS_CLUSTER_NAME }}
           wait-for-service-stability: true  # 서비스가 안정화될 때까지 대기합니다.
