@@ -1,4 +1,4 @@
-name: Product Server Deploy to Amazon ECS
+name: Deploy to Amazon ECS
 
 # release, develop 브랜치에 푸시되거나 PR이 닫힐 때마다 실행되는 워크플로우입니다.
 on:
