@@ -6,11 +6,6 @@ on:
     branches:
       - "release"
       - "develop"
-  pull_request:
-    types: [closed]
-    branches:
-      - "release"
-      - "develop"
 
 jobs:
   deploy:

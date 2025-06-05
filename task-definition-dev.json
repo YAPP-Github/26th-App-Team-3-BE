@@ -18,6 +18,10 @@
         {
           "name": "SPRING_PROFILES_ACTIVE",
           "value": "dev"
+        },
+        {
+          "name": "TZ",
+          "value": "Asia/Seoul"
         }
       ],
       "environmentFiles": [],
