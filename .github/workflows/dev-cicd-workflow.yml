@@ -48,7 +48,7 @@ jobs:
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: task-definition.json
+          task-definition: task-definition-dev.json
           container-name: ${{ secrets.ECS_CONTAINER_NAME_DEV }}
           image: ${{ steps.build-image.outputs.image }}
 
@@ -56,7 +56,7 @@ jobs:
       - name: Deploy to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}  # ECS 태스크 정의 파일을 지정합니다.
+          task-definition: ${{ steps.task-def.outputs.task-definition-dev }}  # ECS 태스크 정의 파일을 지정합니다.
           service: ${{ secrets.ECS_SERVICE_NAME_DEV }}
           cluster: ${{ secrets.ECS_CLUSTER_NAME }}
           wait-for-service-stability: true  # 서비스가 안정화될 때까지 대기합니다.

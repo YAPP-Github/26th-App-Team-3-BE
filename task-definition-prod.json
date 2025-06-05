@@ -1,0 +1,48 @@
+{
+  "family": "bitnagil-prod",
+  "networkMode": "bridge",
+  "containerDefinitions": [
+    {
+      "name": "bitnagil",
+      "cpu": 1,
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "hostPort": 8080,
+          "protocol": "tcp",
+          "appProtocol": "http"
+        }
+      ],
+      "essential": true,
+      "environment": [],
+      "environmentFiles": [],
+      "mountPoints": [],
+      "volumesFrom": [],
+      "ulimits": [],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/spring-app",
+          "mode": "non-blocking",
+          "awslogs-create-group": "true",
+          "max-buffer-size": "25m",
+          "awslogs-region": "ap-northeast-2",
+          "awslogs-stream-prefix": "spring"
+        },
+        "secretOptions": []
+      },
+      "systemControls": []
+    }
+  ],
+  "taskRoleArn": "arn:aws:iam::750819668269:role/ecsTaskExecutionRole",
+  "executionRoleArn": "arn:aws:iam::750819668269:role/ecsTaskExecutionRole",
+  "requiresCompatibilities": [
+    "EC2"
+  ],
+  "cpu": "512",
+  "memory": "256",
+  "runtimePlatform": {
+    "cpuArchitecture": "X86_64",
+    "operatingSystemFamily": "LINUX"
+  }
+}
