@@ -85,7 +85,7 @@ jobs:
           docker build --platform linux/amd64 -t ${{ secrets.ECR_REPO_NAME_DEV }} . 
           docker tag ${{ secrets.ECR_REPO_NAME_DEV }}:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME_DEV }}:latest  # 이미지를 ECR 리포지토리로 태깅합니다.
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME_DEV }}:latest  # 이미지를 ECR에 푸시합니다.
-          echo "image=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME_DEV }}:latest" >> $GITHUB_OUTPUT
+          echo "image=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME_DEV }}:latest" >> $GITHUB_OUTPUT          
 
       # 8. Amazon ECS 태스크 정의에 새 이미지 ID 채우기
       - name: Fill in the new image ID in the Amazon ECS task definition - release
@@ -96,6 +96,13 @@ jobs:
           task-definition: task-definition-prod.json
           container-name: ${{ secrets.ECS_CONTAINER_NAME_PROD }}
           image: ${{ steps.build-image-release.outputs.image }}
+
+      - name: Mask ECS container name secret - release
+        if: github.ref == 'refs/heads/release'
+        run: |
+          echo "ECS_CONTAINER_NAME_PROD is ${{ secrets.ECS_CONTAINER_NAME_PROD }}"
+          echo "Container Names in task-definition-prod.json:"
+          cat task-definition-prod.json | jq -r '.containerDefinitions[].name'
 
       - name: Fill in the new image ID in the Amazon ECS task definition - develop
         if: github.ref == 'refs/heads/develop'
