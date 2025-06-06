@@ -97,13 +97,6 @@ jobs:
           container-name: ${{ secrets.ECS_CONTAINER_NAME_PROD }}
           image: ${{ steps.build-image-release.outputs.image }}
 
-      - name: Mask ECS container name secret - release
-        if: github.ref == 'refs/heads/release'
-        run: |
-          echo "ECS_CONTAINER_NAME_PROD is ${{ secrets.ECS_CONTAINER_NAME_PROD }}"
-          echo "Container Names in task-definition-prod.json:"
-          cat task-definition-prod.json | jq -r '.containerDefinitions[].name'
-
       - name: Fill in the new image ID in the Amazon ECS task definition - develop
         if: github.ref == 'refs/heads/develop'
         id: task-def-develop
