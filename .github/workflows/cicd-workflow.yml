@@ -27,14 +27,27 @@ jobs:
           submodules: true
 
       # 2-1. 환경변수(yml) 파일이 있는지 확인
-      - name: Check if config files exist
+      - name: Check if config files exist - dev
+        if: github.ref == 'refs/heads/develop'
         run: |
           echo "Current Directory: $(pwd)"
           cd config
           echo "Current Directory: $(pwd)"
-          cd local
+          cd dev
           echo "Current Directory: $(pwd)"
           ls -al
+
+      - name: Check if config files exist - prod
+        if: github.ref == 'refs/heads/develop'
+        run: |
+          echo "Current Directory: $(pwd)"
+          cd config
+          echo "Current Directory: $(pwd)"
+          cd prod
+          echo "Current Directory: $(pwd)"
+          ls -al
+      
+      
 
       # 3. Gradle 실행 권한 부여
       - name: Grant execute permission for Gradle
