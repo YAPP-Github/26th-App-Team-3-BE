@@ -30,9 +30,11 @@ jobs:
       - name: Check if config files exist
         run: |
           echo "Current Directory: $(pwd)"
+          cd config
           echo "Current Directory: $(pwd)"
-          ls -al /config/local
-          cat /config/local/application-local.yml || echo "❌ yml not found"
+          cd local
+          echo "Current Directory: $(pwd)"
+          ls -al
 
       # 3. Gradle 실행 권한 부여
       - name: Grant execute permission for Gradle
