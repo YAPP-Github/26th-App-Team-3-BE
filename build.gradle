@@ -26,3 +26,21 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+// 서브모듈의 yml 파일을 resources 디렉토리로 복사
+processResources {
+	from('./config/local') {
+		include 'application-local.yml'
+		into ''
+	}
+
+	from('./config/dev') {
+		include 'application-dev.yml'
+		into ''
+	}
+
+	from('./config/prod') {
+		include 'application-prod.yml'
+		into ''
+	}
+}

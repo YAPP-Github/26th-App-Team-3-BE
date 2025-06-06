@@ -1,0 +1,10 @@
+#spring:
+#  config:
+#    import:
+      # 서브모듈의 yml을 불러옵니다.
+#      - optional:file:config/local/application-local.yml
+#      - optional:file:../config/local/application-local.yml
+#      - optional:file:config/dev/application-dev.yml
+#      - optional:file:../config/dev/application-dev.yml
+#      - optional:file:config/prod/application-prod.yml
+#      - optional:file:../config/prod/application-prod.yml

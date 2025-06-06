@@ -1,20 +1,29 @@
 {
   "family": "bitnagil-prod",
-  "networkMode": "awsvpc",
+  "networkMode": "bridge",
   "containerDefinitions": [
     {
-      "name": "bitnagil",
+      "name": "bitnagil-prod",
       "cpu": 1,
       "portMappings": [
         {
           "containerPort": 8080,
-          "hostPort": 8080,
+          "hostPort": 0,
           "protocol": "tcp",
           "appProtocol": "http"
         }
       ],
       "essential": true,
-      "environment": [],
+      "environment": [
+        {
+          "name": "SPRING_PROFILES_ACTIVE",
+          "value": "prod"
+        },
+        {
+          "name": "TZ",
+          "value": "Asia/Seoul"
+        }
+      ],
       "environmentFiles": [],
       "mountPoints": [],
       "volumesFrom": [],
@@ -22,12 +31,12 @@
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/spring-app",
+          "awslogs-group": "/ecs/bitnagil-prod",
           "mode": "non-blocking",
           "awslogs-create-group": "true",
           "max-buffer-size": "25m",
           "awslogs-region": "ap-northeast-2",
-          "awslogs-stream-prefix": "spring"
+          "awslogs-stream-prefix": "ecs"
         },
         "secretOptions": []
       },
