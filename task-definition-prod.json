@@ -3,7 +3,7 @@
   "networkMode": "bridge",
   "containerDefinitions": [
     {
-      "name": "bitnagil-prod",
+      "name": "bitnagil",
       "cpu": 1,
       "portMappings": [
         {
