@@ -38,7 +38,7 @@ jobs:
           ls -al
 
       - name: Check if config files exist - prod
-        if: github.ref == 'refs/heads/develop'
+        if: github.ref == 'refs/heads/release'
         run: |
           echo "Current Directory: $(pwd)"
           cd config
@@ -46,8 +46,6 @@ jobs:
           cd prod
           echo "Current Directory: $(pwd)"
           ls -al
-      
-      
 
       # 3. Gradle 실행 권한 부여
       - name: Grant execute permission for Gradle
@@ -109,7 +107,7 @@ jobs:
           image: ${{ steps.build-image-develop.outputs.image }}
 
       # 9. ECS에 배포
-      - name: Deploy to ECS
+      - name: Deploy to ECS - release
         if: github.ref == 'refs/heads/release'
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
@@ -118,7 +116,7 @@ jobs:
           cluster: ${{ secrets.ECS_CLUSTER_NAME }}
           wait-for-service-stability: true  # 서비스가 안정화될 때까지 대기합니다.
 
-      - name: Deploy to ECS
+      - name: Deploy to ECS - develop
         if: github.ref == 'refs/heads/develop'
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
