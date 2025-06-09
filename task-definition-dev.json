@@ -14,6 +14,9 @@
         }
       ],
       "essential": true,
+      "links": [
+        "redis-dev"
+      ],
       "environment": [
         {
           "name": "SPRING_PROFILES_ACTIVE",
