@@ -25,6 +25,11 @@ public class HealthCheckController {
     private final RedisTemplate<String, Object> redisTemplate;
     private final Environment environment;
 
+    @GetMapping("/health-check")
+    public CustomResponseDto<String> health() {
+        return CustomResponseDto.from(CommonErrorCode.OK, "헬스체크에 성공했습니다"); // 커스텀 응답 메세지
+    }
+
     @GetMapping("/health-check/{val}")
     public CustomResponseDto<String> health(@PathVariable String val) {
         String activeProfile = String.join(", ", environment.getActiveProfiles());
