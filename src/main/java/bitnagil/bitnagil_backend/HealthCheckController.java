@@ -25,6 +25,10 @@ public class HealthCheckController {
     private final RedisTemplate<String, Object> redisTemplate;
     private final Environment environment;
 
+    /**
+     * ecs 태스크 배포시 헬스체크를 위한 엔드포인트
+     * 해당 api는 alb 헬스체크를 위해 반드시 필요합니다.
+     */
     @GetMapping("/health-check")
     public CustomResponseDto<String> health() {
         return CustomResponseDto.from(CommonErrorCode.OK, "헬스체크에 성공했습니다"); // 커스텀 응답 메세지

@@ -5,6 +5,7 @@
     {
       "name": "bitnagil-dev",
       "cpu": 1,
+      "links": ["redis-dev:redis"],
       "portMappings": [
         {
           "containerPort": 8081,
