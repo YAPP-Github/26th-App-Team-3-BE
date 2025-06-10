@@ -1,41 +1,48 @@
 package bitnagil.bitnagil_backend.global.errorcode;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
- * ErrorCode 인터페이스는 모든 에러 코드가 구현해야 하는 기본 인터페이스입니다.
- * 이 인터페이스를 구현함으로써, 각 에러 코드 클래스는 공통적인 메서드나 속성을 정의할 수 있습니다.
+ * ErrorCode는 모든 에러 코드를 정의한 Enum입니다.
  */
-public interface ErrorCode {
-    /**
-     * 에러 코드의 이름을 반환합니다.
-     * 에러 코드는 구현체 클래스의 이름의 앞 2글자와 순번을 합쳐서 생성합니다.
-     * 예: "CO001", "US002" 등
-     */
-    String getCode();
+@Getter
+@RequiredArgsConstructor
+public enum ErrorCode {
 
-    /**
-     * 에러 코드의 HTTP 상태 코드를 반환합니다.
-     */
-    HttpStatus getHttpStatus();
+    // 공통 에러 코드
+    OK("CO000", HttpStatus.OK, "OK"),
+    INVALID_PARAMETER("CO001", HttpStatus.BAD_REQUEST, "올바르지 않은 파라미터입니다."),
+    RESOURCE_NOT_FOUND("CO002", HttpStatus.NOT_FOUND, "요청한 리소스를 찾을 수 없습니다."),
+    INTERNAL_SERVER_ERROR("CO003", HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다."),
+    NOT_FOUND_HANDLER("CO004", HttpStatus.NOT_FOUND, "요청한 핸들러를 찾을 수 없습니다."),
 
-    /**
-     * 에러 코드의 메시지를 반환합니다.
-     */
-    String getMessage();
+    // JWT 관련 에러 코드
+    FORBIDDEN_USER("JW000", HttpStatus.FORBIDDEN, "필요한 권한이 없는 사용자입니다."),
+    UNAUTHENTICATED_USER("JW001", HttpStatus.UNAUTHORIZED, "인증되지 않은 사용자입니다."),
 
-    // 공통 메서드 1: Throwable 기반 메시지 생성
-    default String getMessage(Throwable throwable) {
-        return getMessage(getMessage() + " - " + throwable.getMessage());
+    // User 관련 에러 코드
+    INACTIVE_USER("US000", HttpStatus.FORBIDDEN, "사용할 수 없는 사용자입니다."),
+
+    ;
+
+    private final String code;
+    private final HttpStatus httpStatus;
+    private final String message;
+
+    public String getMessage(Throwable throwable) {
+        return this.getMessage(this.getMessage(this.getMessage() + " - " + throwable.getMessage()));
     }
 
-    // 공통 메서드 2: message override 시 기본 메시지 fallback
-    default String getMessage(String message) {
+    public String getMessage(String message) {
         return Optional.ofNullable(message)
                 .filter(Predicate.not(String::isBlank))
-                .orElse(getMessage());
+                .orElse(this.getMessage());
     }
+
+
 }
