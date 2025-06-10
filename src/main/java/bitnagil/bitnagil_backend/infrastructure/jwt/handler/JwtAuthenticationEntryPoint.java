@@ -3,6 +3,7 @@ package bitnagil.bitnagil_backend.infrastructure.jwt.handler;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import bitnagil.bitnagil_backend.global.errorcode.ErrorCode;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -10,9 +11,7 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import bitnagil.bitnagil_backend.global.errorcode.JwtErrorCode;
 import bitnagil.bitnagil_backend.global.response.CustomResponseDto;
-import bitnagil.bitnagil_backend.global.response.ErrorResponseDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +37,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
-        CustomResponseDto<String> errorResponse = CustomResponseDto.from(JwtErrorCode.UNAUTHENTICATED_USER,
+        CustomResponseDto<String> errorResponse = CustomResponseDto.from(ErrorCode.UNAUTHENTICATED_USER,
             authException.getMessage());
         objectMapper.writeValue(response.getWriter(), errorResponse);
     }

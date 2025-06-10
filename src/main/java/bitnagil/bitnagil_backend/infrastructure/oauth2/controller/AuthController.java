@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import bitnagil.bitnagil_backend.global.errorcode.CommonErrorCode;
 import bitnagil.bitnagil_backend.infrastructure.oauth2.service.AuthService;
 import bitnagil.bitnagil_backend.global.response.CustomResponseDto;
 import bitnagil.bitnagil_backend.infrastructure.jwt.dto.LoginRequest;
