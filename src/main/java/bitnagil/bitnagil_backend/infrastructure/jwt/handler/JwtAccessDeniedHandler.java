@@ -1,4 +1,4 @@
-package bitnagil.bitnagil_backend.global.jwt.handler;
+package bitnagil.bitnagil_backend.infrastructure.jwt.handler;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

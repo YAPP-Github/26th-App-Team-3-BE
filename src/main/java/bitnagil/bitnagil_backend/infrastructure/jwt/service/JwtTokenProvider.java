@@ -1,4 +1,4 @@
-package bitnagil.bitnagil_backend.jwt.service;
+package bitnagil.bitnagil_backend.infrastructure.jwt.service;
 
 import java.security.Key;
 import java.util.Arrays;
@@ -15,7 +15,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import bitnagil.bitnagil_backend.jwt.dto.Token;
+import bitnagil.bitnagil_backend.infrastructure.jwt.dto.Token;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;

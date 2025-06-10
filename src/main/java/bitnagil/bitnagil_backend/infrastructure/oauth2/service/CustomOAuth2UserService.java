@@ -1,4 +1,4 @@
-package bitnagil.bitnagil_backend.oauth2.service;
+package bitnagil.bitnagil_backend.infrastructure.oauth2.service;
 
 import java.util.Collections;
 import java.util.Map;
@@ -11,8 +11,8 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import bitnagil.bitnagil_backend.oauth2.CustomOAuth2User;
-import bitnagil.bitnagil_backend.oauth2.OAuth2Attribute;
+import bitnagil.bitnagil_backend.infrastructure.oauth2.CustomOAuth2User;
+import bitnagil.bitnagil_backend.infrastructure.oauth2.OAuth2Attribute;
 import bitnagil.bitnagil_backend.user.Repository.UserRepository;
 import bitnagil.bitnagil_backend.enums.SocialType;
 import bitnagil.bitnagil_backend.user.entity.User;

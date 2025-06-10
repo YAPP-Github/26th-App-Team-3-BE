@@ -1,4 +1,4 @@
-package bitnagil.bitnagil_backend.jwt.dto;
+package bitnagil.bitnagil_backend.infrastructure.jwt.dto;
 
 import java.util.Objects;
 

@@ -1,4 +1,4 @@
-package bitnagil.bitnagil_backend.global.jwt.dto;
+package bitnagil.bitnagil_backend.infrastructure.jwt.dto;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
