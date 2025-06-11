@@ -1,13 +1,11 @@
 package bitnagil.bitnagil_backend.global.handler;
 
-import bitnagil.bitnagil_backend.global.errorcode.CommonErrorCode;
 import bitnagil.bitnagil_backend.global.errorcode.ErrorCode;
 import bitnagil.bitnagil_backend.global.exception.CustomException;
 import bitnagil.bitnagil_backend.global.response.ErrorResponseDto;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
@@ -43,7 +41,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Object> handleIllegalArgument(final IllegalArgumentException e) {
         log.warn("handleIllegalArgument", e);
-        final ErrorCode errorCode = CommonErrorCode.INVALID_PARAMETER;
+        final ErrorCode errorCode = ErrorCode.INVALID_PARAMETER;
         return handleExceptionInternal(errorCode, e);
     }
 
@@ -58,7 +56,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             final HttpStatusCode status,
             final WebRequest request) {
         log.warn("handleMethodArgumentNotValid", e);
-        final ErrorCode errorCode = CommonErrorCode.INVALID_PARAMETER;
+        final ErrorCode errorCode = ErrorCode.INVALID_PARAMETER;
         return handleExceptionInternal(errorCode, e);
     }
 
@@ -69,7 +67,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<Object> handleConstraintViolation(final ConstraintViolationException e) {
         log.warn("handleConstraintViolation", e);
-        final ErrorCode errorCode = CommonErrorCode.INVALID_PARAMETER;
+        final ErrorCode errorCode = ErrorCode.INVALID_PARAMETER;
         return handleExceptionInternal(errorCode, e);
     }
 
@@ -79,7 +77,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(BindException.class)
     public ResponseEntity<Object> handleBindException(final BindException e) {
         log.warn("handleBindException", e);
-        final ErrorCode errorCode = CommonErrorCode.INVALID_PARAMETER;
+        final ErrorCode errorCode = ErrorCode.INVALID_PARAMETER;
         return handleExceptionInternal(errorCode, e);
     }
 
@@ -93,7 +91,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             HttpStatusCode status,
             WebRequest request) {
         log.warn("handleMissingPathVariable", e);
-        final ErrorCode errorCode = CommonErrorCode.INVALID_PARAMETER;
+        final ErrorCode errorCode = ErrorCode.INVALID_PARAMETER;
         return handleExceptionInternal(errorCode, e);
     }
 
@@ -108,7 +106,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             HttpStatusCode status,
             WebRequest request) {
         log.warn("handleNoHandlerFoundException", e);
-        final ErrorCode errorCode = CommonErrorCode.NOT_FOUND_HANDLER;
+        final ErrorCode errorCode = ErrorCode.NOT_FOUND_HANDLER;
         return handleExceptionInternal(errorCode, e);
     }
 
@@ -118,7 +116,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({Exception.class})
     public ResponseEntity<Object> handleAllException(final Exception e) {
         log.warn("handleAllException", e);
-        final ErrorCode errorCode = CommonErrorCode.INTERNAL_SERVER_ERROR;
+        final ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
         return handleExceptionInternal(errorCode);
     }
 
