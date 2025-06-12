@@ -44,25 +44,6 @@
         "secretOptions": []
       },
       "systemControls": []
-    },
-    {
-      "name": "redis-dev",
-      "image": "redis:7-alpine",
-      "cpu": 1,
-      "portMappings": [
-        {
-          "name": "redis-dev-6379-tcp",
-          "containerPort": 6379,
-          "hostPort": 6379,
-          "protocol": "tcp"
-        }
-      ],
-      "essential": false,
-      "environment": [],
-      "environmentFiles": [],
-      "mountPoints": [],
-      "volumesFrom": [],
-      "systemControls": []
     }
   ],
   "taskRoleArn": "arn:aws:iam::750819668269:role/ecsTaskExecutionRole",
