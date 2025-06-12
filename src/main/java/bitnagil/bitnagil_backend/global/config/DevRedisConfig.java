@@ -11,8 +11,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-//@Profile({"dev", "local"})
-@Profile({"local"})
+@Profile({"dev", "local"})
+//@Profile({"local"})
 @Configuration
 public class DevRedisConfig {
 
