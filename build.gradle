@@ -46,6 +46,9 @@ dependencies {
 
 	// Swagger
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
+
+	// slack
+	implementation 'com.slack.api:slack-api-client:1.45.3'
 }
 
 tasks.named('test') {

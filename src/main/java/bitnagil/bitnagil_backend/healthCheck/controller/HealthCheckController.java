@@ -44,7 +44,7 @@ public class HealthCheckController implements HealthCheckSpec {
                 "헬스체크에 성공했습니다. 전달받음 value는 " + val + "입니다."); // 커스텀 응답 메세지
     }
 
-    @GetMapping("/requset")
+    @PostMapping("/requset")
     public CustomResponseDto<HealthCheckResponse> health(@RequestBody HealthCheckRequest request) {
         HealthCheckResponse response = HealthCheckResponse.builder()
                 .healthCheckId(request.getHealthCheckId() * 3)
