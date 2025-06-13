@@ -3,6 +3,7 @@ package bitnagil.bitnagil_backend.auth.jwt;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import bitnagil.bitnagil_backend.global.errorcode.ErrorCode;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import bitnagil.bitnagil_backend.global.errorcode.JwtErrorCode;
 import bitnagil.bitnagil_backend.global.response.CustomResponseDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -37,7 +37,7 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
-        CustomResponseDto<String> errorResponse = CustomResponseDto.from(JwtErrorCode.FORBIDDEN_USER,
+        CustomResponseDto<String> errorResponse = CustomResponseDto.from(ErrorCode.FORBIDDEN_USER,
             accessDeniedException.getMessage());
         objectMapper.writeValue(response.getWriter(), errorResponse);
     }

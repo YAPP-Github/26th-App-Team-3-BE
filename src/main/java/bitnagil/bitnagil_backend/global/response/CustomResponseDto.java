@@ -1,6 +1,5 @@
 package bitnagil.bitnagil_backend.global.response;
 
-import bitnagil.bitnagil_backend.global.errorcode.CommonErrorCode;
 import bitnagil.bitnagil_backend.global.errorcode.ErrorCode;
 import lombok.Getter;
 
@@ -20,7 +19,7 @@ public class CustomResponseDto<T> extends ResponseDto {
 
     // 기본 성공 응답: CommonErrorCode.OK를 기본값으로 사용
     public static <T> CustomResponseDto<T> from(T data) {
-        return new CustomResponseDto<>(CommonErrorCode.OK, data);
+        return new CustomResponseDto<>(ErrorCode.OK, data);
     }
 
     // 에러 코드(응답 코드)와 데이터를 함께 사용하는 응답

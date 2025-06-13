@@ -1,15 +1,16 @@
-package bitnagil.bitnagil_backend;
+package bitnagil.bitnagil_backend.healthCheck.controller;
 
-import bitnagil.bitnagil_backend.global.errorcode.CommonErrorCode;
+import bitnagil.bitnagil_backend.global.errorcode.ErrorCode;
 import bitnagil.bitnagil_backend.global.exception.CustomException;
 import bitnagil.bitnagil_backend.global.response.CustomResponseDto;
+import bitnagil.bitnagil_backend.healthCheck.request.HealthCheckRequest;
+import bitnagil.bitnagil_backend.healthCheck.controller.spec.HealthCheckSpec;
+import bitnagil.bitnagil_backend.healthCheck.response.HealthCheckResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
@@ -17,11 +18,11 @@ import java.time.Duration;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-public class HealthCheckController {
+@RequestMapping(value = "/api/v1/health-check")
+public class HealthCheckController implements HealthCheckSpec {
 
     @Value("${server.port}")
     private String port; // 서버 포트 정보
-
     private final RedisTemplate<String, Object> redisTemplate;
     private final Environment environment;
 
@@ -29,24 +30,32 @@ public class HealthCheckController {
      * ecs 태스크 배포시 헬스체크를 위한 엔드포인트
      * 해당 api는 alb 헬스체크를 위해 반드시 필요합니다.
      */
-    @GetMapping("/health-check")
+    @GetMapping("")
     public CustomResponseDto<String> health() {
-        return CustomResponseDto.from(CommonErrorCode.OK, "헬스체크에 성공했습니다"); // 커스텀 응답 메세지
+        return CustomResponseDto.from("헬스체크에 성공했습니다"); // 커스텀 응답 메세지
     }
 
-    @GetMapping("/health-check/{val}")
+    @GetMapping("/{val}")
     public CustomResponseDto<String> health(@PathVariable String val) {
-        String activeProfile = String.join(", ", environment.getActiveProfiles());
-        // throw new CustomException(CommonErrorCode.INTERNAL_SERVER_ERROR); // 예외 처리
-        //return CustomResponseDto.from("헬스체크에 성공했습니다. "); // 기본 응답 메세지
-        return CustomResponseDto.from(CommonErrorCode.OK,
-                "헬스체크에 성공했습니다. 현재 활성화된 프로필: " + activeProfile + ", 서버 포트: " + port); // 커스텀 응답 메세지
+        if(val.equals("null")){
+            throw new CustomException(ErrorCode.RESOURCE_NOT_FOUND);
+        }
+        return CustomResponseDto.from(
+                "헬스체크에 성공했습니다. 전달받음 value는 " + val + "입니다."); // 커스텀 응답 메세지
+    }
+
+    @PostMapping("/requset")
+    public CustomResponseDto<HealthCheckResponse> health(@RequestBody HealthCheckRequest request) {
+        HealthCheckResponse response = HealthCheckResponse.builder()
+                .healthCheckId(request.getHealthCheckId() * 3)
+                        .title(request.getTitle()).build();
+        return CustomResponseDto.from(response);
     }
 
     /**
      * Redis 테스트 컨트롤러
      */
-    @GetMapping("/redis/health-check")
+    @GetMapping("/redis")
     public CustomResponseDto<String> healthCheck() {
         try {
             String healthKey = "redis-health-check";
@@ -54,13 +63,13 @@ public class HealthCheckController {
             String value = (String) redisTemplate.opsForValue().get(healthKey);
             return "OK".equals(value)
                     ? CustomResponseDto.from("Redis is healthy")
-                    : CustomResponseDto.from(CommonErrorCode.INTERNAL_SERVER_ERROR, "Redis set/get mismatch");
+                    : CustomResponseDto.from(ErrorCode.INTERNAL_SERVER_ERROR, "Redis set/get mismatch");
         } catch (Exception e) {
-            return CustomResponseDto.from(CommonErrorCode.INTERNAL_SERVER_ERROR,"Redis connection failed: " + e.getMessage());
+            return CustomResponseDto.from(ErrorCode.INTERNAL_SERVER_ERROR,"Redis connection failed: " + e.getMessage());
         }
     }
 
-    @PostMapping("/redis/health-check")
+    @PostMapping("/redis")
     public CustomResponseDto<String> redisDebugFlow(@RequestParam String key, @RequestParam String value) {
         try {
             log.info("🔧 [1] 저장 시도 - key: {}, value: {}", key, value);
@@ -73,7 +82,7 @@ public class HealthCheckController {
 
             if (fetched == null || !fetched.equals(value)) {
                 log.warn("❌ [2] 조회 실패 또는 값 불일치");
-                return CustomResponseDto.from(CommonErrorCode.INTERNAL_SERVER_ERROR,"Redis 저장 후 조회 실패 또는 값 불일치");
+                return CustomResponseDto.from(ErrorCode.RESOURCE_NOT_FOUND,"Redis 저장 후 조회 실패 또는 값 불일치");
             }
 
             log.info("🧹 [3] 삭제 시도 - key: {}", key);
@@ -88,9 +97,7 @@ public class HealthCheckController {
 
         } catch (Exception e) {
             log.error("🔥 Redis 디버그 중 예외 발생", e);
-            return CustomResponseDto.from(CommonErrorCode.INTERNAL_SERVER_ERROR,"Redis 디버그 중 에러: " + e.getMessage());
+            return CustomResponseDto.from(ErrorCode.INTERNAL_SERVER_ERROR,"Redis 디버그 중 에러: " + e.getMessage());
         }
     }
-
-
 }
