@@ -4,17 +4,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import bitnagil.bitnagil_backend.auth.jwt.dto.Token;
+import bitnagil.bitnagil_backend.auth.jwt.model.Token;
 import bitnagil.bitnagil_backend.auth.jwt.JwtTokenProvider;
 import bitnagil.bitnagil_backend.auth.jwt.UserAuthentication;
-import bitnagil.bitnagil_backend.auth.oauth2.dto.KakaoTokenResponse;
+import bitnagil.bitnagil_backend.auth.oauth2.response.KakaoTokenResponse;
 import bitnagil.bitnagil_backend.user.Repository.UserRepository;
 import bitnagil.bitnagil_backend.enums.SocialType;
-import bitnagil.bitnagil_backend.auth.jwt.dto.LoginResponse;
+import bitnagil.bitnagil_backend.auth.jwt.response.LoginResponse;
 import bitnagil.bitnagil_backend.user.entity.User;
 import bitnagil.bitnagil_backend.enums.Role;
-import bitnagil.bitnagil_backend.auth.oauth2.dto.KakaoAccount;
-import bitnagil.bitnagil_backend.auth.oauth2.dto.KakaoUserInfo;
+import bitnagil.bitnagil_backend.auth.oauth2.model.KakaoAccount;
+import bitnagil.bitnagil_backend.auth.oauth2.model.KakaoUserInfo;
 import lombok.RequiredArgsConstructor;
 
 /**

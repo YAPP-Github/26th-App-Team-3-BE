@@ -1,4 +1,4 @@
-package bitnagil.bitnagil_backend.auth.oauth2.dto;
+package bitnagil.bitnagil_backend.auth.oauth2.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

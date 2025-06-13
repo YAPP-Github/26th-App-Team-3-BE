@@ -1,5 +1,6 @@
-package bitnagil.bitnagil_backend.auth.jwt.dto;
+package bitnagil.bitnagil_backend.auth.jwt.response;
 
+import bitnagil.bitnagil_backend.auth.jwt.model.Token;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

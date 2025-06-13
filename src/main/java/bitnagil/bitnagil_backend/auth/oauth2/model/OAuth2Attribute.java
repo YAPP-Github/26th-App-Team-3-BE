@@ -1,4 +1,4 @@
-package bitnagil.bitnagil_backend.auth.oauth2;
+package bitnagil.bitnagil_backend.auth.oauth2.model;
 
 import java.util.HashMap;
 import java.util.Map;
