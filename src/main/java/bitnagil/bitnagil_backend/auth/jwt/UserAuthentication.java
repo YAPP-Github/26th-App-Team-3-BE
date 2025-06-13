@@ -1,4 +1,4 @@
-package bitnagil.bitnagil_backend.infrastructure.jwt.service;
+package bitnagil.bitnagil_backend.auth.jwt;
 
 import java.util.Collection;
 

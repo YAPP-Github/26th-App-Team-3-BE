@@ -1,4 +1,4 @@
-package bitnagil.bitnagil_backend.infrastructure.jwt.handler;
+package bitnagil.bitnagil_backend.auth.jwt;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import bitnagil.bitnagil_backend.global.errorcode.JwtErrorCode;
 import bitnagil.bitnagil_backend.global.response.CustomResponseDto;
-import bitnagil.bitnagil_backend.global.response.ErrorResponseDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

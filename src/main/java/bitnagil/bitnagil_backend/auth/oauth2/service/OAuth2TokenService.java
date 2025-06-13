@@ -1,4 +1,4 @@
-package bitnagil.bitnagil_backend.infrastructure.oauth2.service;
+package bitnagil.bitnagil_backend.auth.oauth2.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -12,8 +12,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import bitnagil.bitnagil_backend.infrastructure.oauth2.dto.KakaoTokenResponse;
-import bitnagil.bitnagil_backend.infrastructure.oauth2.dto.KakaoUserInfo;
+import bitnagil.bitnagil_backend.auth.oauth2.dto.KakaoTokenResponse;
+import bitnagil.bitnagil_backend.auth.oauth2.dto.KakaoUserInfo;
 
 /**
  * 카카오 OAuth2 인증을 위한 토큰 발급 및 사용자 정보 조회를 담당하는 서비스입니다.

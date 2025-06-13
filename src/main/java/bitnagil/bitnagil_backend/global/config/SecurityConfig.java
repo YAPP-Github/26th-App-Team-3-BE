@@ -14,10 +14,10 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import bitnagil.bitnagil_backend.infrastructure.jwt.handler.JwtAccessDeniedHandler;
-import bitnagil.bitnagil_backend.infrastructure.jwt.handler.JwtAuthenticationEntryPoint;
-import bitnagil.bitnagil_backend.infrastructure.jwt.service.JwtAuthenticationFilter;
-import bitnagil.bitnagil_backend.infrastructure.oauth2.service.CustomOAuth2UserService;
+import bitnagil.bitnagil_backend.auth.jwt.JwtAccessDeniedHandler;
+import bitnagil.bitnagil_backend.auth.jwt.JwtAuthenticationEntryPoint;
+import bitnagil.bitnagil_backend.auth.jwt.JwtAuthenticationFilter;
+import bitnagil.bitnagil_backend.auth.oauth2.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 
 @Configuration

@@ -1,20 +1,20 @@
-package bitnagil.bitnagil_backend.infrastructure.oauth2.service;
+package bitnagil.bitnagil_backend.auth.oauth2.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import bitnagil.bitnagil_backend.infrastructure.jwt.dto.Token;
-import bitnagil.bitnagil_backend.infrastructure.jwt.service.JwtTokenProvider;
-import bitnagil.bitnagil_backend.infrastructure.jwt.service.UserAuthentication;
-import bitnagil.bitnagil_backend.infrastructure.oauth2.dto.KakaoTokenResponse;
+import bitnagil.bitnagil_backend.auth.jwt.dto.Token;
+import bitnagil.bitnagil_backend.auth.jwt.JwtTokenProvider;
+import bitnagil.bitnagil_backend.auth.jwt.UserAuthentication;
+import bitnagil.bitnagil_backend.auth.oauth2.dto.KakaoTokenResponse;
 import bitnagil.bitnagil_backend.user.Repository.UserRepository;
 import bitnagil.bitnagil_backend.enums.SocialType;
-import bitnagil.bitnagil_backend.infrastructure.jwt.dto.LoginResponse;
+import bitnagil.bitnagil_backend.auth.jwt.dto.LoginResponse;
 import bitnagil.bitnagil_backend.user.entity.User;
 import bitnagil.bitnagil_backend.enums.Role;
-import bitnagil.bitnagil_backend.infrastructure.oauth2.dto.KakaoAccount;
-import bitnagil.bitnagil_backend.infrastructure.oauth2.dto.KakaoUserInfo;
+import bitnagil.bitnagil_backend.auth.oauth2.dto.KakaoAccount;
+import bitnagil.bitnagil_backend.auth.oauth2.dto.KakaoUserInfo;
 import lombok.RequiredArgsConstructor;
 
 /**
