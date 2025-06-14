@@ -37,18 +37,6 @@ public enum ErrorCode {
     NOT_FOUND_USER("US001", HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."),
     ;
 
-// } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-//     log.info("잘못된 JWT 서명입니다.");
-//         } catch (
-// ExpiredJwtException e) {
-//     log.info("만료된 JWT 토큰입니다.");
-//         } catch (
-// UnsupportedJwtException e) {
-//     log.info("지원되지 않는 JWT 토큰입니다.");
-//         } catch (IllegalArgumentException e) {
-//     log.info("JWT 토큰이 잘못되었습니다.");
-//         }
-
     private final String code;
     private final HttpStatus httpStatus;
     private final String message;
