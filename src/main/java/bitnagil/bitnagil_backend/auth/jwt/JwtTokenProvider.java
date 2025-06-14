@@ -1,21 +1,22 @@
 package bitnagil.bitnagil_backend.auth.jwt;
 
 import java.security.Key;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import bitnagil.bitnagil_backend.auth.jwt.model.Token;
+import bitnagil.bitnagil_backend.global.errorcode.ErrorCode;
+import bitnagil.bitnagil_backend.global.exception.CustomException;
+import bitnagil.bitnagil_backend.user.Repository.UserRepository;
+import bitnagil.bitnagil_backend.user.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -24,44 +25,51 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Component
+@Service
+@RequiredArgsConstructor
 public class JwtTokenProvider {
-    private static final String AUTHORITIES_KEY = "auth";
-    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30;            // 30분
-    private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 7;  // 7일
+    @Value("${jwt.secret}")
+    private String secretKey;
 
-    private final Key key;
+    private static final Long ACCESS_TOKEN_EXPIRE_TIME = (long)(1000 * 60 * 30);            // 30분
+    private static final Long REFRESH_TOKEN_EXPIRE_TIME = (long)(1000 * 60 * 60 * 24 * 7);
+    private static final String ACCESS_TOKEN_SUBJECT = "AccessToken";
+    private static final String REFRESH_TOKEN_SUBJECT = "RefreshToken";// 7일
+
+    private Key key;
+
+    private final UserRepository userRepository;
 
     // jwt.secret을 사용해서 암호화 키값 생성
-    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
+    @PostConstruct
+    protected void init() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public Token generateToken(Authentication authentication) {
-        // 권한들 가져오기
-        String authorities = authentication.getAuthorities().stream()
-            .map(GrantedAuthority::getAuthority)
-            .collect(Collectors.joining(","));
-
-        long now = (new Date()).getTime();
+    public Token generateToken(Long userId) {
+        Date now = new Date();
 
         // Access Token 생성
-        Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
+        Date accessTokenExpiresIn = new Date(now.getTime() + ACCESS_TOKEN_EXPIRE_TIME);
 
         String accessToken = Jwts.builder()
-            .setSubject(authentication.getName())
-            .claim(AUTHORITIES_KEY, authorities)
+            .setSubject(ACCESS_TOKEN_SUBJECT)
+            .claim("userId", userId)
             .setExpiration(accessTokenExpiresIn)
             .signWith(key, SignatureAlgorithm.HS512)
             .compact();
 
         // Refresh Token 생성
-        Date refreshTokenExpiresIn = new Date(now + REFRESH_TOKEN_EXPIRE_TIME);
+        Date refreshTokenExpiresIn = new Date(now.getTime() + REFRESH_TOKEN_EXPIRE_TIME);
         String refreshToken = Jwts.builder()
+            .setSubject(REFRESH_TOKEN_SUBJECT)
+            .claim("userId", userId)
             .setExpiration(refreshTokenExpiresIn)
             .signWith(key, SignatureAlgorithm.HS512)
             .compact();
@@ -77,26 +85,18 @@ public class JwtTokenProvider {
         // 토큰 복호화
         Claims claims = parseClaims(accessToken);
 
-        if (claims.get(AUTHORITIES_KEY) == null) {
-            throw new RuntimeException("권한 정보가 없는 토큰입니다.");
-        }
+        Long userId = Long.valueOf(claims.get("userId", Integer.class));
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
 
-        // 클레임에서 권한 정보 가져오기
-        Collection<? extends GrantedAuthority> authorities =
-            Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
-
-        // UserDetails 객체를 만들어서 Authentication 리턴
-        UserDetails principal = new User(claims.getSubject(), "", authorities);
-
-        return new UsernamePasswordAuthenticationToken(principal, "", authorities);
+        return new UsernamePasswordAuthenticationToken(user, null, getAuthorities(user));
+        // TODO 추후 회원탈퇴한 유저를 어떻게 관리하는지에 따라 추가 검증 필요
     }
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            return true;
+            Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+
+            return claims.getExpiration().after(new Date());
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
             log.info("잘못된 JWT 서명입니다.");
         } catch (ExpiredJwtException e) {
@@ -107,6 +107,12 @@ public class JwtTokenProvider {
             log.info("JWT 토큰이 잘못되었습니다.");
         }
         return false;
+    }
+
+    private Collection<GrantedAuthority> getAuthorities(User user) {
+        return Collections.singletonList(
+            new SimpleGrantedAuthority("ROLE_" + user.getRole().toString())
+        );
     }
 
     private Claims parseClaims(String accessToken) {

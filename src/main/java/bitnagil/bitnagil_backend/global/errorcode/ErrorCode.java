@@ -27,7 +27,7 @@ public enum ErrorCode {
 
     // User 관련 에러 코드
     INACTIVE_USER("US000", HttpStatus.FORBIDDEN, "사용할 수 없는 사용자입니다."),
-
+    NOT_FOUND_USER("US001", HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."),
     ;
 
     private final String code;
