@@ -12,7 +12,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 @Builder
-public class LoginResponse {
+public class TokenResponse {
     @NotEmpty
     private String accessToken;
 
@@ -21,8 +21,8 @@ public class LoginResponse {
 
     private Long accessTokenExpiresIn;
 
-    public static LoginResponse of(Token token) {
-        return LoginResponse.builder()
+    public static TokenResponse of(Token token) {
+        return TokenResponse.builder()
             .accessToken(token.getAccessToken())
             .refreshToken(token.getRefreshToken())
             .accessTokenExpiresIn(token.getAccessTokenExpiresIn())
