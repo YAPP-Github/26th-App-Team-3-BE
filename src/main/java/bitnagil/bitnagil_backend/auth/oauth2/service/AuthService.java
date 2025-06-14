@@ -4,13 +4,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import bitnagil.bitnagil_backend.auth.jwt.entity.RefreshToken;
 import bitnagil.bitnagil_backend.auth.jwt.model.Token;
-import bitnagil.bitnagil_backend.auth.jwt.JwtTokenProvider;
-import bitnagil.bitnagil_backend.auth.jwt.UserAuthentication;
+import bitnagil.bitnagil_backend.auth.jwt.JwtProvider;
 import bitnagil.bitnagil_backend.auth.oauth2.response.KakaoTokenResponse;
+import bitnagil.bitnagil_backend.global.errorcode.ErrorCode;
+import bitnagil.bitnagil_backend.global.exception.CustomException;
 import bitnagil.bitnagil_backend.user.Repository.UserRepository;
 import bitnagil.bitnagil_backend.enums.SocialType;
-import bitnagil.bitnagil_backend.auth.jwt.response.LoginResponse;
+import bitnagil.bitnagil_backend.auth.jwt.response.TokenResponse;
 import bitnagil.bitnagil_backend.user.entity.User;
 import bitnagil.bitnagil_backend.enums.Role;
 import bitnagil.bitnagil_backend.auth.oauth2.model.KakaoAccount;
@@ -30,23 +32,46 @@ public class AuthService {
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String kakaoClientId;
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
     private final OAuth2TokenService oauth2TokenService;
+    private final RedisService redisService;
 
     @Transactional
-    public LoginResponse kakaoLogin(String code, String kakaoRedirectUrl) {
+    public TokenResponse kakaoLogin(String code, String kakaoRedirectUrl) {
 
         KakaoTokenResponse tokenResponse = oauth2TokenService.getKakaoToken(kakaoClientId,
             kakaoRedirectUrl, code);
 
         KakaoUserInfo userInfo = oauth2TokenService.getUserInfo(tokenResponse.getAccessToken());
 
-        User member = signUpOrLogin(SocialType.KAKAO, userInfo.getId(), userInfo.getKakaoAccount());
+        User user = signUpOrLogin(SocialType.KAKAO, userInfo.getId(), userInfo.getKakaoAccount());
 
-        Token token = jwtTokenProvider.generateToken(new UserAuthentication(member.getUserId(), null, null));
+        Token token = jwtProvider.generateToken(user.getUserId());
 
-        return LoginResponse.of(token);
+        return TokenResponse.of(token);
+    }
+
+    public TokenResponse reissueToken(String refreshToken) {
+
+        if (!jwtProvider.validateToken(refreshToken)) {
+            throw new CustomException(ErrorCode.INVALID_JWT_TOKEN);
+        }
+
+        Long userId = Long.valueOf(jwtProvider.parseClaims(refreshToken).get("userId", Integer.class));
+        // 실제로 DB에 있는 userId 인지 검증
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+
+        RefreshToken refreshTokenByRedis = redisService.getRefreshTokenByUserId(user.getUserId())
+            .orElseThrow(() -> new CustomException(ErrorCode.INVALID_JWT_TOKEN));
+
+        if(!refreshTokenByRedis.getRefreshToken().equals(refreshToken)) {
+            throw new CustomException(ErrorCode.INVALID_JWT_TOKEN);
+        }
+
+        Token token = jwtProvider.generateToken(userId);
+
+        return TokenResponse.of(token);
     }
 
     private User signUpOrLogin(SocialType socialType, String socialId, KakaoAccount kakaoAccount) {

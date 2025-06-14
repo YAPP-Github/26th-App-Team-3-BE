@@ -13,6 +13,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import bitnagil.bitnagil_backend.auth.jwt.model.Token;
+import bitnagil.bitnagil_backend.auth.oauth2.service.RedisService;
 import bitnagil.bitnagil_backend.global.errorcode.ErrorCode;
 import bitnagil.bitnagil_backend.global.exception.CustomException;
 import bitnagil.bitnagil_backend.user.Repository.UserRepository;
@@ -32,7 +33,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class JwtTokenProvider {
+public class JwtProvider {
+    private final RedisService redisService;
+
     @Value("${jwt.secret}")
     private String secretKey;
 
@@ -74,6 +77,8 @@ public class JwtTokenProvider {
             .signWith(key, SignatureAlgorithm.HS512)
             .compact();
 
+        redisService.saveRefreshToken(userId, refreshToken);
+
         return Token.builder()
             .accessToken(accessToken)
             .accessTokenExpiresIn(accessTokenExpiresIn.getTime())
@@ -108,17 +113,19 @@ public class JwtTokenProvider {
         }
     }
 
-    private Collection<GrantedAuthority> getAuthorities(User user) {
-        return Collections.singletonList(
-            new SimpleGrantedAuthority("ROLE_" + user.getRole().toString())
-        );
-    }
-
-    private Claims parseClaims(String accessToken) {
+    public Claims parseClaims(String accessToken) {
         try {
             return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody();
         } catch (ExpiredJwtException e) {
             throw new CustomException(ErrorCode.EXPIRED_JWT_TOKEN);
         }
     }
+
+    private Collection<GrantedAuthority> getAuthorities(User user) {
+        return Collections.singletonList(
+            new SimpleGrantedAuthority("ROLE_" + user.getRole().toString())
+        );
+    }
+
+
 }
