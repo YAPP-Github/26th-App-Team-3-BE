@@ -98,15 +98,14 @@ public class JwtTokenProvider {
 
             return claims.getExpiration().after(new Date());
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            log.info("잘못된 JWT 서명입니다.");
+            throw new CustomException(ErrorCode.INVALID_JWT_SIGNATURE);
         } catch (ExpiredJwtException e) {
-            log.info("만료된 JWT 토큰입니다.");
+            throw new CustomException(ErrorCode.EXPIRED_JWT_TOKEN);
         } catch (UnsupportedJwtException e) {
-            log.info("지원되지 않는 JWT 토큰입니다.");
+            throw new CustomException(ErrorCode.UNSUPPORTED_JWT_TOKEN);
         } catch (IllegalArgumentException e) {
-            log.info("JWT 토큰이 잘못되었습니다.");
+            throw new CustomException(ErrorCode.INVALID_JWT_TOKEN);
         }
-        return false;
     }
 
     private Collection<GrantedAuthority> getAuthorities(User user) {
@@ -119,7 +118,7 @@ public class JwtTokenProvider {
         try {
             return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody();
         } catch (ExpiredJwtException e) {
-            return e.getClaims();
+            throw new CustomException(ErrorCode.EXPIRED_JWT_TOKEN);
         }
     }
 }
