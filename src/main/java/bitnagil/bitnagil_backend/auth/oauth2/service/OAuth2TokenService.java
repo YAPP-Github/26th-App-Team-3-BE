@@ -6,14 +6,10 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import bitnagil.bitnagil_backend.auth.oauth2.response.KakaoTokenResponse;
-import bitnagil.bitnagil_backend.auth.oauth2.response.KakaoUserInfo;
+import bitnagil.bitnagil_backend.auth.oauth2.response.KakaoUserInfoResponse;
 
 /**
  * 카카오 OAuth2 인증을 위한 토큰 발급 및 사용자 정보 조회를 담당하는 서비스입니다.
@@ -24,9 +20,6 @@ import bitnagil.bitnagil_backend.auth.oauth2.response.KakaoUserInfo;
 @Service
 public class OAuth2TokenService {
 
-    @Value("${spring.security.oauth2.client.provider.kakao-provider.token-uri}")
-    private String TOKEN_URI;
-
     @Value("${spring.security.oauth2.client.provider.kakao-provider.user-info-uri}")
     private String USER_INFO_URI;
 
@@ -36,35 +29,17 @@ public class OAuth2TokenService {
         this.restTemplate = restTemplateBuilder.build();
     }
 
-    public KakaoTokenResponse getKakaoToken(String clientId, String redirectUri, String code) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.add("grant_type", "authorization_code");
-        body.add("client_id", clientId);
-        body.add("redirect_uri", redirectUri);
-        body.add("code", code);
-
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
-
-        ResponseEntity<KakaoTokenResponse> response = restTemplate.postForEntity(
-            TOKEN_URI, request, KakaoTokenResponse.class);
-
-        return response.getBody();
-    }
-
-    public KakaoUserInfo getUserInfo(String accessToken) {
+    public KakaoUserInfoResponse getUserInfo(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
 
         HttpEntity<Void> request = new HttpEntity<>(headers);
 
-        ResponseEntity<KakaoUserInfo> response = restTemplate.exchange(
+        ResponseEntity<KakaoUserInfoResponse> response = restTemplate.exchange(
             USER_INFO_URI,
             HttpMethod.GET,
             request,
-            KakaoUserInfo.class
+            KakaoUserInfoResponse.class
         );
 
         return response.getBody();

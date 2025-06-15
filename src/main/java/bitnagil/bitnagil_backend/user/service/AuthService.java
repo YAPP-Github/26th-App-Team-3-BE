@@ -1,14 +1,14 @@
-package bitnagil.bitnagil_backend.auth.oauth2.service;
+package bitnagil.bitnagil_backend.user.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import bitnagil.bitnagil_backend.auth.jwt.LoginRequest;
 import bitnagil.bitnagil_backend.auth.jwt.RefreshToken;
 import bitnagil.bitnagil_backend.auth.jwt.Token;
 import bitnagil.bitnagil_backend.auth.jwt.JwtProvider;
-import bitnagil.bitnagil_backend.auth.oauth2.response.KakaoTokenResponse;
+import bitnagil.bitnagil_backend.auth.oauth2.service.OAuth2TokenService;
+import bitnagil.bitnagil_backend.auth.oauth2.service.RedisService;
 import bitnagil.bitnagil_backend.global.errorcode.ErrorCode;
 import bitnagil.bitnagil_backend.global.exception.CustomException;
 import bitnagil.bitnagil_backend.user.Repository.UserRepository;
@@ -17,7 +17,7 @@ import bitnagil.bitnagil_backend.auth.jwt.TokenResponse;
 import bitnagil.bitnagil_backend.user.entity.User;
 import bitnagil.bitnagil_backend.enums.Role;
 import bitnagil.bitnagil_backend.auth.oauth2.response.KakaoAccount;
-import bitnagil.bitnagil_backend.auth.oauth2.response.KakaoUserInfo;
+import bitnagil.bitnagil_backend.auth.oauth2.response.KakaoUserInfoResponse;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -30,31 +30,25 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class AuthService {
 
-    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
-    private String kakaoClientId;
-
     private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
     private final OAuth2TokenService oauth2TokenService;
     private final RedisService redisService;
 
     @Transactional
-    public TokenResponse socialLogin(LoginRequest loginRequest) {
-        if (loginRequest.getSocialType().equals(SocialType.KAKAO)) {
+    public TokenResponse socialLogin(SocialType socialType, String socialAccessToken) {
+        if (socialType.equals(SocialType.KAKAO)) {
 
-            return kakaoLogin(loginRequest.getCode(), loginRequest.getRedirectUri());
+            return kakaoLogin(socialAccessToken);
         }
 
         // TODO 애플 로그인 추가
         return null;
     }
 
-    private TokenResponse kakaoLogin(String code, String kakaoRedirectUrl) {
+    private TokenResponse kakaoLogin(String kakaoAccessToken) {
 
-        KakaoTokenResponse tokenResponse = oauth2TokenService.getKakaoToken(kakaoClientId,
-            kakaoRedirectUrl, code);
-
-        KakaoUserInfo userInfo = oauth2TokenService.getUserInfo(tokenResponse.getAccessToken());
+        KakaoUserInfoResponse userInfo = oauth2TokenService.getUserInfo(kakaoAccessToken);
 
         User user = signUpOrLogin(SocialType.KAKAO, userInfo.getId(), userInfo.getKakaoAccount());
 

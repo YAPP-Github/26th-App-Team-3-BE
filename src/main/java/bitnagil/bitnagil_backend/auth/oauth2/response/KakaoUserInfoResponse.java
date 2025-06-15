@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
  */
 @Getter
 @NoArgsConstructor
-public class KakaoUserInfo {
+public class KakaoUserInfoResponse {
 
     private String id;
 
