@@ -1,4 +1,4 @@
-package bitnagil.bitnagil_backend.infrastructure.oauth2.dto;
+package bitnagil.bitnagil_backend.auth.oauth2.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
  */
 @Getter
 @NoArgsConstructor
-public class KakaoUserInfo {
+public class KakaoUserInfoResponse {
 
     private String id;
 

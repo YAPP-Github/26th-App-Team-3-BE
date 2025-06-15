@@ -1,6 +1,4 @@
-package bitnagil.bitnagil_backend.infrastructure.jwt.dto;
-
-import java.util.Objects;
+package bitnagil.bitnagil_backend.auth.jwt;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Builder;

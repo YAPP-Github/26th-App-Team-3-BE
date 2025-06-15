@@ -1,4 +1,4 @@
-package bitnagil.bitnagil_backend.infrastructure.jwt.dto;
+package bitnagil.bitnagil_backend.auth.jwt;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
@@ -11,7 +11,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 @Builder
-public class LoginResponse {
+public class TokenResponse {
     @NotEmpty
     private String accessToken;
 
@@ -20,8 +20,8 @@ public class LoginResponse {
 
     private Long accessTokenExpiresIn;
 
-    public static LoginResponse of(Token token) {
-        return LoginResponse.builder()
+    public static TokenResponse of(Token token) {
+        return TokenResponse.builder()
             .accessToken(token.getAccessToken())
             .refreshToken(token.getRefreshToken())
             .accessTokenExpiresIn(token.getAccessTokenExpiresIn())
