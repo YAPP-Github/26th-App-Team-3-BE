@@ -4,12 +4,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import bitnagil.bitnagil_backend.auth.jwt.LoginRequest;
 import bitnagil.bitnagil_backend.auth.jwt.RefreshToken;
 import bitnagil.bitnagil_backend.auth.jwt.Token;
 import bitnagil.bitnagil_backend.auth.jwt.JwtProvider;
 import bitnagil.bitnagil_backend.auth.oauth2.response.KakaoTokenResponse;
 import bitnagil.bitnagil_backend.global.errorcode.ErrorCode;
 import bitnagil.bitnagil_backend.global.exception.CustomException;
+import bitnagil.bitnagil_backend.global.response.CustomResponseDto;
 import bitnagil.bitnagil_backend.user.Repository.UserRepository;
 import bitnagil.bitnagil_backend.enums.SocialType;
 import bitnagil.bitnagil_backend.auth.jwt.TokenResponse;
@@ -38,7 +40,17 @@ public class AuthService {
     private final RedisService redisService;
 
     @Transactional
-    public TokenResponse kakaoLogin(String code, String kakaoRedirectUrl) {
+    public TokenResponse socialLogin(LoginRequest loginRequest) {
+        if (loginRequest.getSocialType().equals(SocialType.KAKAO)) {
+
+            return kakaoLogin(loginRequest.getCode(), loginRequest.getRedirectUri());
+        }
+
+        // TODO 애플 로그인 추가
+        return null;
+    }
+
+    private TokenResponse kakaoLogin(String code, String kakaoRedirectUrl) {
 
         KakaoTokenResponse tokenResponse = oauth2TokenService.getKakaoToken(kakaoClientId,
             kakaoRedirectUrl, code);
@@ -72,6 +84,8 @@ public class AuthService {
         Token token = jwtProvider.generateToken(userId);
 
         return TokenResponse.of(token);
+
+        // TODO 애플 로그인 토큰 재발행 로직 추가
     }
 
     private User signUpOrLogin(SocialType socialType, String socialId, KakaoAccount kakaoAccount) {

@@ -22,15 +22,9 @@ public class AuthController {
 
     @PostMapping("/login")
     public CustomResponseDto<TokenResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
-        if (loginRequest.getSocialType().equals(SocialType.KAKAO)) {
+        TokenResponse tokenResponse = authService.socialLogin(loginRequest);
 
-            TokenResponse tokenResponse = authService.kakaoLogin(loginRequest.getCode(), loginRequest.getRedirectUri());
-
-            return CustomResponseDto.from(tokenResponse);
-        }
-
-        // TODO 애플 로그인 추가
-        return CustomResponseDto.from(null);
+        return CustomResponseDto.from(tokenResponse);
     }
 
     @PostMapping("/token/reissue")
@@ -38,8 +32,6 @@ public class AuthController {
         TokenResponse tokenResponse = authService.reissueToken(refreshToken);
 
         return CustomResponseDto.from(tokenResponse);
-
-        // TODO 애플 로그인 관련 토큰 재발행 추가
     }
 
 }
