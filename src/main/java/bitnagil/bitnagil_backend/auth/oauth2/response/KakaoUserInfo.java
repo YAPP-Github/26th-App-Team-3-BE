@@ -1,7 +1,8 @@
-package bitnagil.bitnagil_backend.auth.oauth2.model;
+package bitnagil.bitnagil_backend.auth.oauth2.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import bitnagil.bitnagil_backend.auth.oauth2.model.KakaoAccount;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

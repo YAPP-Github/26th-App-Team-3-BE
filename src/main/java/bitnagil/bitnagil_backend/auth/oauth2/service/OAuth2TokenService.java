@@ -13,7 +13,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import bitnagil.bitnagil_backend.auth.oauth2.response.KakaoTokenResponse;
-import bitnagil.bitnagil_backend.auth.oauth2.model.KakaoUserInfo;
+import bitnagil.bitnagil_backend.auth.oauth2.response.KakaoUserInfo;
 
 /**
  * 카카오 OAuth2 인증을 위한 토큰 발급 및 사용자 정보 조회를 담당하는 서비스입니다.
@@ -28,7 +28,7 @@ public class OAuth2TokenService {
     private String TOKEN_URI;
 
     @Value("${spring.security.oauth2.client.provider.kakao-provider.user-info-uri}")
-    private  String USER_INFO_URI;
+    private String USER_INFO_URI;
 
     private final RestTemplate restTemplate;
 

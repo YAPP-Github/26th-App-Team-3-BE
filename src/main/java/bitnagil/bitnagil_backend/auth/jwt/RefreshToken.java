@@ -1,4 +1,4 @@
-package bitnagil.bitnagil_backend.auth.jwt.entity;
+package bitnagil.bitnagil_backend.auth.jwt;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;

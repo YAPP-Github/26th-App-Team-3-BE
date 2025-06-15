@@ -1,4 +1,4 @@
-package bitnagil.bitnagil_backend.auth.jwt.request;
+package bitnagil.bitnagil_backend.auth.jwt;
 
 import bitnagil.bitnagil_backend.enums.SocialType;
 import jakarta.validation.constraints.NotEmpty;

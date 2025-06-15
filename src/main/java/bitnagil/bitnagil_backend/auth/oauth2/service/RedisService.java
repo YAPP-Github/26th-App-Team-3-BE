@@ -1,12 +1,11 @@
 package bitnagil.bitnagil_backend.auth.oauth2.service;
 
-import java.time.Duration;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
-import bitnagil.bitnagil_backend.auth.jwt.entity.RefreshToken;
-import bitnagil.bitnagil_backend.auth.jwt.repository.RefreshTokenRedisRepository;
+import bitnagil.bitnagil_backend.auth.jwt.RefreshToken;
+import bitnagil.bitnagil_backend.auth.jwt.RefreshTokenRedisRepository;
 import lombok.RequiredArgsConstructor;
 
 @Component

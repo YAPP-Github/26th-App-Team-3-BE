@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import bitnagil.bitnagil_backend.auth.oauth2.service.AuthService;
 import bitnagil.bitnagil_backend.global.response.CustomResponseDto;
-import bitnagil.bitnagil_backend.auth.jwt.request.LoginRequest;
-import bitnagil.bitnagil_backend.auth.jwt.response.TokenResponse;
+import bitnagil.bitnagil_backend.auth.jwt.LoginRequest;
+import bitnagil.bitnagil_backend.auth.jwt.TokenResponse;
 import bitnagil.bitnagil_backend.enums.SocialType;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
