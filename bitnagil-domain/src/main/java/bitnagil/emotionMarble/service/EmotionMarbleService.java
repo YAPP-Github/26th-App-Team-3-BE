@@ -3,22 +3,27 @@ package bitnagil.emotionMarble.service;
 import bitnagil.emotionMarble.domain.EmotionMarble;
 import bitnagil.emotionMarble.domain.enums.EmotionMarbleType;
 import bitnagil.emotionMarble.dto.request.RegisterEmotionMarbleRequest;
+import bitnagil.emotionMarble.dto.response.EmotionMarbleDailyResponse;
 import bitnagil.emotionMarble.dto.response.EmotionMarbleTypeResponse;
 import bitnagil.emotionMarble.dto.response.EmotionMarbleTypeResponseV2;
 import bitnagil.emotionMarble.dto.response.RegisterEmotionMarbleResponse;
 import bitnagil.emotionMarble.repository.EmotionMarbleRepository;
+import bitnagil.badge.domain.enums.BadgeTriggerAction;
+import bitnagil.badge.event.BadgeTriggerEvent;
 import bitnagil.recommendedRoutine.dto.response.RecommendedRoutineDto;
 import bitnagil.recommendedRoutine.service.RecommendedRoutineManager;
 import bitnagil.user.domain.User;
 import bitnagil.errorcode.ErrorCode;
 import bitnagil.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.YearMonth;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,6 +40,7 @@ public class EmotionMarbleService {
     private final RecommendedRoutineManager recommendedRoutineManager;
     private final EmotionMarbleFactory emotionMarbleFactory;
     private final EmotionMarbleMapper emotionMarbleMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     // 감정 구술 조회(enum의 value를 가져온다.)
     public List<EmotionMarbleTypeResponse> getEmotionMarbles() {
@@ -60,6 +66,9 @@ public class EmotionMarbleService {
 
         emotionMarbleRepository.save(emotionMarble);
 
+        eventPublisher.publishEvent(
+            new BadgeTriggerEvent(user.getUserId(), BadgeTriggerAction.EMOTION_MARBLE_SELECT, YearMonth.from(nowDate)));
+
         // 감정 구슬에 따른 추천 루틴 응답
         List<RecommendedRoutineDto> recommendedRoutineDtoList =
             recommendedRoutineManager.recommendRoutinesByEmotionMarble(emotionMarble.getResultCase());
@@ -83,6 +92,15 @@ public class EmotionMarbleService {
         return emotionMarbleMapper.toEmotionMarbleTypeResponse(emotionMarble);
     }
 
+    // 해당 연·월에 선택한 일별 감정 구슬 목록 조회 (감정 구슬을 선택한 날짜만 포함, 날짜 오름차순)
+    @Transactional(readOnly = true)
+    public List<EmotionMarbleDailyResponse> getMonthlyEmotionMarbles(User user, YearMonth yearMonth) {
+        LocalDate start = yearMonth.atDay(1);
+        LocalDate end = yearMonth.atEndOfMonth();
 
-
+        return emotionMarbleRepository.findByUserIdAndDateBetweenOrderByDateAsc(user.getUserId(), start, end)
+            .stream()
+            .map(emotionMarbleMapper::toDailyResponse)
+            .toList();
+    }
 }

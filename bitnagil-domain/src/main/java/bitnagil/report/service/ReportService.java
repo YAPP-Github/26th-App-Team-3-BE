@@ -1,5 +1,7 @@
 package bitnagil.report.service;
 
+import bitnagil.badge.domain.enums.BadgeTriggerAction;
+import bitnagil.badge.event.BadgeTriggerEvent;
 import bitnagil.errorcode.ErrorCode;
 import bitnagil.exception.CustomException;
 import bitnagil.report.domain.Report;
@@ -11,10 +13,12 @@ import bitnagil.report.dto.response.ReportInfo;
 import bitnagil.report.dto.response.ReportInfoResponse;
 import bitnagil.user.domain.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +29,7 @@ import java.util.Map;
 public class ReportService {
 
     private final ReportRepository reportRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     // 제보 등록
     @Transactional
@@ -42,6 +47,10 @@ public class ReportService {
             .build();
 
         reportRepository.save(report);
+
+        eventPublisher.publishEvent(
+            new BadgeTriggerEvent(user.getUserId(), BadgeTriggerAction.REPORT_REGISTER, YearMonth.now()));
+
         return report.getReportId();
     }
 
