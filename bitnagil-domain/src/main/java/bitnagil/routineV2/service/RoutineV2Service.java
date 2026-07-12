@@ -184,7 +184,7 @@ public class RoutineV2Service {
     // 루틴 완료 여부를 업데이트 하는 메서드
     @Transactional
     public void updateRoutineCompletionStatus(User user, RoutineV2UpdateCompletionRequest request) {
-        boolean anyCompleted = false;
+        Set<YearMonth> completedMonths = new HashSet<>();
         for (RoutineV2UpdateCompletionInfo info : request.getRoutineCompletionInfos()) {
             Long routineId = Long.valueOf(info.getRoutineId());
             RoutineV2 routineV2 = routineV2Repository.findByUserAndRoutineId(user, routineId)
@@ -193,15 +193,15 @@ public class RoutineV2Service {
             // 루틴, 서브루틴 완료 여부 갱신
             routineV2.updateRoutineCompleteYn(info.getRoutineCompleteYn(), info.getSubRoutineCompleteYn());
 
+            // 뱃지는 "완료한 루틴의 날짜가 속한 달"에 귀속되므로, 완료된 루틴의 routineDate 기준으로 달을 모은다.
             if (Boolean.TRUE.equals(info.getRoutineCompleteYn())) {
-                anyCompleted = true;
+                completedMonths.add(YearMonth.from(routineV2.getRoutineDate()));
             }
         }
 
-        if (anyCompleted) {
-            eventPublisher.publishEvent(
-                new BadgeTriggerEvent(user.getUserId(), BadgeTriggerAction.ROUTINE_COMPLETE, YearMonth.now()));
-        }
+        // 완료 루틴이 여러 달에 걸칠 수 있으므로 달마다 1건씩 발행 (비동기 처리가 월 경계를 넘어 지연돼도 정확한 달에 발급)
+        completedMonths.forEach(month -> eventPublisher.publishEvent(
+            new BadgeTriggerEvent(user.getUserId(), BadgeTriggerAction.ROUTINE_COMPLETE, month)));
     }
 
     /**

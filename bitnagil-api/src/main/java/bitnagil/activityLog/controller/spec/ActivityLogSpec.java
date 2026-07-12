@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 
 @Tag(name = ApiTags.ACTIVITY_LOG)
 public interface ActivityLogSpec {
@@ -23,5 +25,8 @@ public interface ActivityLogSpec {
         @Parameter(name = "month", description = "조회 월 (1~12)", required = true, example = "7")
     })
     @ApiErrorCodeExamples({ErrorCode.REQUIRED_PARAMETER_NOT_FOUND, ErrorCode.INVALID_PARAMETER})
-    CustomResponseDto<MonthlyActivityLogResponse> getMonthlyActivityLog(User user, int year, int month);
+    CustomResponseDto<MonthlyActivityLogResponse> getMonthlyActivityLog(
+        User user,
+        @Min(2000) @Max(9999) int year,
+        @Min(1) @Max(12) int month);
 }

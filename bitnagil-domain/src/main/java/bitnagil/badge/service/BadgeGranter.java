@@ -9,10 +9,10 @@ import bitnagil.report.repository.ReportRepository;
 import bitnagil.routineV2.repository.RoutineV2Repository;
 import bitnagil.user.domain.User;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.YearMonth;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -36,7 +36,9 @@ public class BadgeGranter {
      * 그 달에 미보유 + 임계치 충족 시 수여합니다.
      * 영속된 카운트만으로 재계산하는 멱등 연산이므로 이벤트 리스너와 조회 시점 치유(과거 달 소급 포함) 양쪽에서 재사용합니다.
      */
-    @Transactional
+    // REQUIRES_NEW: 액션별 독립 커밋을 강제한다. 호출자(조회 치유 등)가 트랜잭션 안에 있어도
+    // 동시 수여 unique 위반이 호출자 트랜잭션을 rollback-only로 오염시키지 않도록 별도 트랜잭션으로 분리한다.
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void evaluateAndGrant(User user, BadgeTriggerAction action, YearMonth month) {
         for (BadgeType type : BadgeType.grantableByAction(action)) {
             if (badgeRepository.existsByUserAndBadgeTypeAndBadgeYearMonth(user, type, month)) {
@@ -58,8 +60,8 @@ public class BadgeGranter {
             case ROUTINE_COMPLETE ->
                 routineV2Repository.countCompletedByUserAndRoutineDateBetween(user, startDate, endDate);
             case REPORT_REGISTER ->
-                reportRepository.countByUserAndCreatedAtBetween(
-                    user, startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX));
+                reportRepository.countByUserAndCreatedAtGreaterThanEqualAndCreatedAtLessThan(
+                    user, startDate.atStartOfDay(), month.plusMonths(1).atDay(1).atStartOfDay());
         };
     }
 }

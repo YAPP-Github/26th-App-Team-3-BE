@@ -17,6 +17,7 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
 
     Optional<Report> findByReportIdAndUser(Long reportId, User user);
 
-    // 해당 유저가 특정 기간(연·월)에 등록한 제보 수 (뱃지 월별 발급 판정용)
-    long countByUserAndCreatedAtBetween(User user, LocalDateTime start, LocalDateTime end);
+    // 해당 유저가 특정 기간([start, end) 반열림)에 등록한 제보 수 (뱃지 월별 발급 판정용)
+    // TIMESTAMP 초 반올림으로 월 경계(자정) 제보가 양쪽 달에 이중 카운트되지 않도록 상한은 '다음 달 1일 00:00 미만'으로 둔다.
+    long countByUserAndCreatedAtGreaterThanEqualAndCreatedAtLessThan(User user, LocalDateTime start, LocalDateTime end);
 }
