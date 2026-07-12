@@ -43,7 +43,7 @@ public class BadgeService {
     public List<BadgeResponse> getMonthlyBadges(User user, YearMonth yearMonth) {
         heal(user, yearMonth);
 
-        List<Badge> monthlyBadges = badgeRepository.findByUserAndBadgeMonthOrderByCreatedAtDesc(user, yearMonth);
+        List<Badge> monthlyBadges = badgeRepository.findByUserAndBadgeYearMonthOrderByCreatedAtDesc(user, yearMonth);
         if (monthlyBadges.isEmpty()) {
             return List.of(badgeMapper.toReserveDefaultResponse());
         }

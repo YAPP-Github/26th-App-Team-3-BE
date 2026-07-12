@@ -30,7 +30,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
  * 사용자가 특정 활동(루틴 완료, 감정구슬 선택, 제보 등)을 그 달에 일정 횟수 이상 수행하면 수여되는 활동 뱃지입니다.
  * 뱃지는 매월 초기화되어(월별 발급) 같은 종류의 뱃지를 매달 다시 획득할 수 있습니다.
  * 한 번 수여되면 변경/삭제되지 않는 이력성 데이터이므로 {@code BaseTimeEntity}(수정/삭제 타임스탬프)를 상속하지 않고,
- * 물리적 기록 시각만 {@code createdAt}으로 감사(auditing)합니다. 뱃지가 귀속되는 달은 {@code badgeMonth}로 명시하며,
+ * 물리적 기록 시각만 {@code createdAt}으로 감사(auditing)합니다. 뱃지가 귀속되는 연·월은 {@code badgeYearMonth}로 명시하며,
  * 이벤트 유실로 소급 발급될 때에도 실제 획득한 달을 가리키도록 {@code createdAt}과 분리합니다.
  */
 @Getter
@@ -40,8 +40,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Table(
     name = "badge",
     uniqueConstraints = @UniqueConstraint(
-        name = "uk_badge_user_type_month",
-        columnNames = {"user_id", "badge_type", "badge_month"}
+        name = "uk_badge_user_type_year_month",
+        columnNames = {"user_id", "badge_type", "badge_year_month"}
     )
 )
 public class Badge {
@@ -59,25 +59,25 @@ public class Badge {
     private BadgeType badgeType;
 
     @Convert(converter = YearMonthConverter.class)
-    @Column(name = "badge_month", columnDefinition = "varchar(7)", nullable = false)
-    private YearMonth badgeMonth;
+    @Column(name = "badge_year_month", columnDefinition = "varchar(7)", nullable = false)
+    private YearMonth badgeYearMonth;
 
     @CreatedDate
     @Column(updatable = false, nullable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private Badge(User user, BadgeType badgeType, YearMonth badgeMonth) {
+    private Badge(User user, BadgeType badgeType, YearMonth badgeYearMonth) {
         this.user = user;
         this.badgeType = badgeType;
-        this.badgeMonth = badgeMonth;
+        this.badgeYearMonth = badgeYearMonth;
     }
 
-    public static Badge grant(User user, BadgeType badgeType, YearMonth badgeMonth) {
+    public static Badge grant(User user, BadgeType badgeType, YearMonth badgeYearMonth) {
         return Badge.builder()
             .user(user)
             .badgeType(badgeType)
-            .badgeMonth(badgeMonth)
+            .badgeYearMonth(badgeYearMonth)
             .build();
     }
 }

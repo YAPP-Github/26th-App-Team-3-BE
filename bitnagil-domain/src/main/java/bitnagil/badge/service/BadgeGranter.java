@@ -39,7 +39,7 @@ public class BadgeGranter {
     @Transactional
     public void evaluateAndGrant(User user, BadgeTriggerAction action, YearMonth month) {
         for (BadgeType type : BadgeType.grantableByAction(action)) {
-            if (badgeRepository.existsByUserAndBadgeTypeAndBadgeMonth(user, type, month)) {
+            if (badgeRepository.existsByUserAndBadgeTypeAndBadgeYearMonth(user, type, month)) {
                 continue;
             }
             if (countProgress(user, action, month) >= type.getThreshold()) {

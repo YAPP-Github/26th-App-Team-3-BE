@@ -11,7 +11,7 @@ import jakarta.persistence.Converter;
  *
  * 사용 예시:
  * @Convert(converter = YearMonthConverter.class)
- * private YearMonth badgeMonth;
+ * private YearMonth badgeYearMonth;
  */
 @Converter
 public class YearMonthConverter implements AttributeConverter<YearMonth, String> {
