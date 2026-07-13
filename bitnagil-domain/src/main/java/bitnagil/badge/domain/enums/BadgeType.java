@@ -57,9 +57,4 @@ public enum BadgeType implements EnumType {
             .filter(type -> type.triggerAction == action)
             .toList();
     }
-
-    // action에 상관없이 실제로 발급 대상이 될 수 있는(트리거가 있는) 뱃지인지 여부
-    public boolean isGrantable() {
-        return triggerAction != null;
-    }
 }
