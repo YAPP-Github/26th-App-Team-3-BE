@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.util.List;
 
 @Tag(name = ApiTags.ACTIVITY_LOG)
@@ -31,16 +33,16 @@ public interface ActivityLogSpec {
         @Min(2000) @Max(9999) int year,
         @Min(1) @Max(12) int month);
 
-    @Operation(summary = "월별 감정 구슬 조회",
-        description = "지정한 연·월에 선택한 일별 감정 구슬 목록을 조회합니다.\n\n"
+    @Operation(summary = "기간별 감정 구슬 조회",
+        description = "지정한 기간(startDate ~ endDate)에 선택한 일별 감정 구슬 목록을 조회합니다.\n\n"
             + "감정 구슬을 선택한 날짜만 포함되며(하루 최대 1개), 날짜 오름차순으로 정렬됩니다.")
     @Parameters({
-        @Parameter(name = "year", description = "조회 연도", required = true, example = "2026"),
-        @Parameter(name = "month", description = "조회 월 (1~12)", required = true, example = "7")
+        @Parameter(name = "startDate", description = "조회 시작일", required = true, example = "2026-07-01"),
+        @Parameter(name = "endDate", description = "조회 종료일", required = true, example = "2026-07-31")
     })
     @ApiErrorCodeExamples({ErrorCode.REQUIRED_PARAMETER_NOT_FOUND, ErrorCode.INVALID_PARAMETER})
-    CustomResponseDto<List<EmotionMarbleDailyResponse>> getMonthlyEmotionMarbles(
+    CustomResponseDto<List<EmotionMarbleDailyResponse>> getDailyEmotionMarbles(
         User user,
-        @Min(2000) @Max(9999) int year,
-        @Min(1) @Max(12) int month);
+        @NotNull LocalDate startDate,
+        @NotNull LocalDate endDate);
 }

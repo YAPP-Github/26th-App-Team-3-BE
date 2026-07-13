@@ -10,6 +10,8 @@ import bitnagil.global.response.CustomResponseDto;
 import bitnagil.user.domain.User;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -38,11 +40,11 @@ public class ActivityLogController implements ActivityLogSpec {
     }
 
     @GetMapping("/emotion-marbles")
-    public CustomResponseDto<List<EmotionMarbleDailyResponse>> getMonthlyEmotionMarbles(
+    public CustomResponseDto<List<EmotionMarbleDailyResponse>> getDailyEmotionMarbles(
         @CurrentUser User user,
-        @RequestParam @Min(2000) @Max(9999) int year,
-        @RequestParam @Min(1) @Max(12) int month) {
+        @RequestParam @NotNull LocalDate startDate,
+        @RequestParam @NotNull LocalDate endDate) {
 
-        return CustomResponseDto.from(emotionMarbleService.getMonthlyEmotionMarbles(user, YearMonth.of(year, month)));
+        return CustomResponseDto.from(emotionMarbleService.getDailyEmotionMarbles(user, startDate, endDate));
     }
 }
