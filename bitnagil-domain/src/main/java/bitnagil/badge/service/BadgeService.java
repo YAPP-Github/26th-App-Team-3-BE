@@ -1,13 +1,17 @@
 package bitnagil.badge.service;
 
 import bitnagil.badge.domain.Badge;
+import bitnagil.badge.domain.enums.BadgeType;
 import bitnagil.badge.domain.enums.BadgeTriggerAction;
 import bitnagil.badge.dto.response.BadgeResponse;
 import bitnagil.badge.repository.BadgeRepository;
 import bitnagil.user.domain.User;
 import bitnagil.user.repository.UserRepository;
 import java.time.YearMonth;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -36,18 +40,31 @@ public class BadgeService {
     }
 
     /**
-     * 해당 연·월에 획득한 활동 뱃지 목록을 조회합니다. 조회 전 조회한 달을 기준으로 전체 행동을 재평가해
-     * async 이벤트 유실분을 치유(과거 달이면 소급 발급)합니다.
+     * 해당 연·월에 획득한 활동 뱃지 목록을 조회합니다. 그 달에 발급 가능한 뱃지가 이미 전부 있으면
+     * 치유(heal)를 건너뛰어 조회 1회로 끝내고, 하나라도 비어 있을 때만 재평가를 돌립니다.
+     * (async 이벤트 유실분 치유, 과거 달이면 소급 발급)
      * 그 달에 획득한 뱃지가 하나도 없으면 "예비 전문가" 기본 뱃지 1건을 반환합니다(달마다 리셋).
      */
     public List<BadgeResponse> getMonthlyBadges(User user, YearMonth yearMonth) {
-        heal(user, yearMonth);
-
         List<Badge> monthlyBadges = badgeRepository.findByUserAndBadgeYearMonthOrderByCreatedAtDesc(user, yearMonth);
+
+        if (!isFullyGranted(monthlyBadges)) {
+            heal(user, yearMonth);
+            monthlyBadges = badgeRepository.findByUserAndBadgeYearMonthOrderByCreatedAtDesc(user, yearMonth);
+        }
+
         if (monthlyBadges.isEmpty()) {
             return List.of(badgeMapper.toReserveDefaultResponse());
         }
         return monthlyBadges.stream().map(badgeMapper::toBadgeResponse).toList();
+    }
+
+    // 트리거가 있는(=실제 발급 대상인) 뱃지 종류가 그 달 목록에 전부 있는지 (전부 있으면 heal 자체가 불필요)
+    private boolean isFullyGranted(List<Badge> monthlyBadges) {
+        Set<BadgeType> grantedTypes = monthlyBadges.stream().map(Badge::getBadgeType).collect(Collectors.toSet());
+        return Arrays.stream(BadgeType.values())
+            .filter(BadgeType::isGrantable)
+            .allMatch(grantedTypes::contains);
     }
 
     /**

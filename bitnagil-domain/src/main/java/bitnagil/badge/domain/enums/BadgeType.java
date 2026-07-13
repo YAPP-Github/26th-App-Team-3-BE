@@ -47,10 +47,19 @@ public enum BadgeType implements EnumType {
 
     /**
      * 주어진 행동으로 발급 대상이 되는 뱃지 목록을 반환합니다. (RESERVE_EXPERT처럼 트리거가 없는 뱃지는 제외)
+     * action이 null이면 항상 빈 리스트 — RESERVE_EXPERT의 triggerAction(null)과 우연히 매칭되는 것을 막는다.
      */
     public static List<BadgeType> grantableByAction(BadgeTriggerAction action) {
+        if (action == null) {
+            return List.of();
+        }
         return Arrays.stream(values())
             .filter(type -> type.triggerAction == action)
             .toList();
+    }
+
+    // action에 상관없이 실제로 발급 대상이 될 수 있는(트리거가 있는) 뱃지인지 여부
+    public boolean isGrantable() {
+        return triggerAction != null;
     }
 }
