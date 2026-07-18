@@ -2,6 +2,7 @@ package bitnagil.emotionMarble.service;
 
 import bitnagil.emotionMarble.domain.EmotionMarble;
 import bitnagil.emotionMarble.domain.enums.EmotionMarbleType;
+import bitnagil.emotionMarble.dto.response.EmotionMarbleDailyResponse;
 import bitnagil.emotionMarble.dto.response.EmotionMarbleTypeResponse;
 import bitnagil.emotionMarble.dto.response.EmotionMarbleTypeResponseV2;
 import org.springframework.stereotype.Component;
@@ -37,5 +38,16 @@ public class EmotionMarbleMapper {
                 .imageUrl(emotionMarble == null ? null :emotionMarble.getEmotionMarbleType().getHomeMarbleImageUrlV2())
                 .emotionMarbleHomeMessage(emotionMarble == null ? null : emotionMarble.getEmotionMarbleType().getHomeMessage())
                 .build();
+    }
+
+    // 월별 조회용 일별 감정 구슬 매핑 (조회 결과 목록의 요소이므로 null이 아님)
+    public EmotionMarbleDailyResponse toDailyResponse(EmotionMarble emotionMarble) {
+        EmotionMarbleType emotionMarbleType = emotionMarble.getEmotionMarbleType();
+        return EmotionMarbleDailyResponse.builder()
+            .date(emotionMarble.getDate())
+            .emotionMarbleType(emotionMarbleType)
+            .emotionMarbleName(emotionMarbleType.getDescription())
+            .imageUrl(emotionMarbleType.getMarbleImageUrl())
+            .build();
     }
 }

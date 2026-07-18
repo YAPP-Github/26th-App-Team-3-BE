@@ -74,4 +74,16 @@ public interface RoutineV2Repository extends JpaRepository<RoutineV2, Long> {
         @Param("endDate") LocalDate endDate,
         @Param("routineInfoId") Long routineInfoId);
 
+    // 해당 유저가 특정 기간(연·월)에 완료(routineCompleteYn=true)한 "큰 루틴" 건수 (뱃지 월별 발급 판정용)
+    @Query("""
+        select count(r) from RoutineV2 r
+        where r.routineInfo.user = :user
+          and r.routineCompleteYn = true
+          and r.routineDate between :start and :end
+    """)
+    long countCompletedByUserAndRoutineDateBetween(
+        @Param("user") User user,
+        @Param("start") LocalDate start,
+        @Param("end") LocalDate end);
+
 }

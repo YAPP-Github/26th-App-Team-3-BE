@@ -2,12 +2,16 @@ package bitnagil.routineV2.service;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.*;
 
+import bitnagil.badge.domain.enums.BadgeTriggerAction;
+import bitnagil.badge.event.BadgeTriggerEvent;
 import bitnagil.errorcode.ErrorCode;
 import bitnagil.exception.CustomException;
 import bitnagil.routineInfoV2.dto.request.RoutineInfoV2UpdateRequest;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +41,7 @@ public class RoutineV2Service {
     private final RoutineV2Factory routineV2Factory;
     private final RoutineV2Repository routineV2Repository;
     private final RoutineV2Mapper routineV2Mapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 회원이 보유한 특정 기간(start_date, end_date)의 루틴을 조회하는 메서드입니다.
@@ -179,6 +184,7 @@ public class RoutineV2Service {
     // 루틴 완료 여부를 업데이트 하는 메서드
     @Transactional
     public void updateRoutineCompletionStatus(User user, RoutineV2UpdateCompletionRequest request) {
+        Set<YearMonth> completedMonths = new HashSet<>();
         for (RoutineV2UpdateCompletionInfo info : request.getRoutineCompletionInfos()) {
             Long routineId = Long.valueOf(info.getRoutineId());
             RoutineV2 routineV2 = routineV2Repository.findByUserAndRoutineId(user, routineId)
@@ -186,7 +192,16 @@ public class RoutineV2Service {
 
             // 루틴, 서브루틴 완료 여부 갱신
             routineV2.updateRoutineCompleteYn(info.getRoutineCompleteYn(), info.getSubRoutineCompleteYn());
+
+            // 뱃지는 "완료한 루틴의 날짜가 속한 달"에 귀속되므로, 완료된 루틴의 routineDate 기준으로 달을 모은다.
+            if (Boolean.TRUE.equals(info.getRoutineCompleteYn())) {
+                completedMonths.add(YearMonth.from(routineV2.getRoutineDate()));
+            }
         }
+
+        // 완료 루틴이 여러 달에 걸칠 수 있으므로 달마다 1건씩 발행 (비동기 처리가 월 경계를 넘어 지연돼도 정확한 달에 발급)
+        completedMonths.forEach(month -> eventPublisher.publishEvent(
+            new BadgeTriggerEvent(user.getUserId(), BadgeTriggerAction.ROUTINE_COMPLETE, month)));
     }
 
     /**

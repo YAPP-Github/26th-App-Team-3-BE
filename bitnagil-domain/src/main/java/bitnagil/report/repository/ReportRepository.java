@@ -1,5 +1,6 @@
 package bitnagil.report.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,4 +16,8 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
     List<Report> findByUserOrderByUpdatedAtDesc(User user);
 
     Optional<Report> findByReportIdAndUser(Long reportId, User user);
+
+    // 해당 유저가 특정 기간([start, end) 반열림)에 등록한 제보 수 (뱃지 월별 발급 판정용)
+    // TIMESTAMP 초 반올림으로 월 경계(자정) 제보가 양쪽 달에 이중 카운트되지 않도록 상한은 '다음 달 1일 00:00 미만'으로 둔다.
+    long countByUserAndCreatedAtGreaterThanEqualAndCreatedAtLessThan(User user, LocalDateTime start, LocalDateTime end);
 }
