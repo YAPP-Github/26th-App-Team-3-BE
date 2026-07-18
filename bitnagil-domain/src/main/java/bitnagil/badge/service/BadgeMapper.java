@@ -12,12 +12,9 @@ import org.springframework.stereotype.Component;
 public class BadgeMapper {
 
     public BadgeResponse toBadgeResponse(Badge badge) {
-        BadgeType type = badge.getBadgeType();
         return BadgeResponse.builder()
-            .badgeType(type)
-            .title(type.getTitle())
-            .description(type.getDescription())
-            .imageUrl(type.getImageUrl())
+            .badgeType(badge.getBadgeType())
+            .imageUrl(badge.getBadgeType().getImageUrl())
             .acquiredAt(badge.getCreatedAt())
             .build();
     }
@@ -27,39 +24,43 @@ public class BadgeMapper {
         BadgeType type = BadgeType.RESERVE_EXPERT;
         return BadgeResponse.builder()
             .badgeType(type)
-            .title(type.getTitle())
-            .description(type.getDescription())
             .imageUrl(type.getImageUrl())
             .acquiredAt(null)
             .build();
     }
 
     /**
-     * 그 달 획득 뱃지 목록을 대표 칭호(title/description) + 아이콘 목록으로 묶습니다.
-     * 대표 칭호는 획득 개수로 결정됩니다: 0·1개=대표 뱃지(예비 전문가 또는 그 뱃지) 자체, 2개 이상=집계 칭호({@link BadgeTier}).
+     * 그 달 획득 뱃지 목록을 대표 칭호(badgeTitle/badgeDescription) + 아이콘 목록(badges)으로 묶습니다.
+     * badges[] 항목은 아이콘 표시용이라 title/description을 담지 않으므로, 대표 칭호는 원본
+     * {@link Badge}/{@link BadgeType}에서 직접 계산합니다: 0개=예비 전문가, 1개=그 뱃지 자체,
+     * 2개 이상=집계 칭호({@link BadgeTier}).
      */
     public MonthlyBadgeResponse toMonthlyBadgeResponse(List<Badge> monthlyBadges) {
-        List<BadgeResponse> badges = monthlyBadges.isEmpty()
-            ? List.of(toReserveDefaultResponse())
-            : monthlyBadges.stream().map(this::toBadgeResponse).toList();
+        if (monthlyBadges.isEmpty()) {
+            BadgeType reserve = BadgeType.RESERVE_EXPERT;
+            return MonthlyBadgeResponse.builder()
+                .badgeTitle(reserve.getTitle())
+                .badgeDescription(reserve.getDescription())
+                .badges(List.of(toReserveDefaultResponse()))
+                .build();
+        }
 
-        String title;
-        String description;
-        if (badges.size() >= 2) {
-            BadgeTier tier = BadgeTier.from(badges.size());
-            title = tier.getTitle();
-            description = tier.getDescription();
+        String badgeTitle;
+        String badgeDescription;
+        if (monthlyBadges.size() == 1) {
+            BadgeType type = monthlyBadges.get(0).getBadgeType();
+            badgeTitle = type.getTitle();
+            badgeDescription = type.getDescription();
         } else {
-            // 0개(예비 전문가 기본)·1개(그 뱃지) 모두 목록의 대표 뱃지가 곧 칭호가 된다.
-            BadgeResponse representative = badges.get(0);
-            title = representative.getTitle();
-            description = representative.getDescription();
+            BadgeTier tier = BadgeTier.from(monthlyBadges.size());
+            badgeTitle = tier.getTitle();
+            badgeDescription = tier.getDescription();
         }
 
         return MonthlyBadgeResponse.builder()
-            .title(title)
-            .description(description)
-            .badges(badges)
+            .badgeTitle(badgeTitle)
+            .badgeDescription(badgeDescription)
+            .badges(monthlyBadges.stream().map(this::toBadgeResponse).toList())
             .build();
     }
 }
