@@ -13,12 +13,6 @@ public class BadgeResponse {
     @Schema(description = "뱃지 타입")
     private BadgeType badgeType;
 
-    @Schema(description = "뱃지 타이틀", example = "체크 전문가")
-    private String title;
-
-    @Schema(description = "뱃지 설명", example = "큰 성취를 이루셨군요!")
-    private String description;
-
     @Schema(description = "뱃지 이미지 URL")
     private String imageUrl;
 
