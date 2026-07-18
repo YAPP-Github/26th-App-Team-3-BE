@@ -1,7 +1,7 @@
 package bitnagil.activityLog.controller;
 
 import bitnagil.activityLog.controller.spec.ActivityLogSpec;
-import bitnagil.badge.dto.response.BadgeResponse;
+import bitnagil.badge.dto.response.MonthlyBadgeResponse;
 import bitnagil.badge.service.BadgeService;
 import bitnagil.emotionMarble.dto.response.EmotionMarbleDailyResponse;
 import bitnagil.emotionMarble.service.EmotionMarbleService;
@@ -31,7 +31,7 @@ public class ActivityLogController implements ActivityLogSpec {
     private final EmotionMarbleService emotionMarbleService;
 
     @GetMapping("/badges")
-    public CustomResponseDto<List<BadgeResponse>> getMonthlyBadges(
+    public CustomResponseDto<MonthlyBadgeResponse> getMonthlyBadges(
         @CurrentUser User user,
         @RequestParam @Min(2000) @Max(9999) int year,
         @RequestParam @Min(1) @Max(12) int month) {

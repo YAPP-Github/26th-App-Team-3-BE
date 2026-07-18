@@ -7,21 +7,22 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- * 활동 뱃지 종류입니다. 새 뱃지를 추가할 때는 이 enum에 상수만 추가하면 되고,
- * 발급 로직({@code BadgeService})은 수정할 필요가 없습니다.
+ * 활동 뱃지 종류입니다. 새 뱃지를 추가할 때는 이 enum에 상수만 추가하면 되고, 발급 로직({@code BadgeService})은
+ * 수정할 필요가 없습니다. 단, 발급 가능한 뱃지가 늘어 한 달 획득 개수 상한이 커지면
+ * 집계 칭호({@code BadgeTier})에 해당 개수의 칭호를 함께 추가해야 합니다.
  */
 @RequiredArgsConstructor
 @Getter
 public enum BadgeType implements EnumType {
     MOTIVATION_EXPERT(
         "의욕 전문가",
-        "감정에 솔직해지고 계시네요",
+        "점점 감정에 솔직해지고 계시네요!",
         BadgeTriggerAction.EMOTION_MARBLE_SELECT,
         3,
         "https://bitnagil-s3.s3.ap-northeast-2.amazonaws.com/badge_motivation.png"),
     CHECK_EXPERT(
         "체크 전문가",
-        "큰 성취를 이루셨군요!",
+        "큰 성취를 이루셨군요, 대단해요!",
         BadgeTriggerAction.ROUTINE_COMPLETE,
         1,
         "https://bitnagil-s3.s3.ap-northeast-2.amazonaws.com/badge_check.png"),

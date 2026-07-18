@@ -2,7 +2,7 @@ package bitnagil.badge.service;
 
 import bitnagil.badge.domain.Badge;
 import bitnagil.badge.domain.enums.BadgeTriggerAction;
-import bitnagil.badge.dto.response.BadgeResponse;
+import bitnagil.badge.dto.response.MonthlyBadgeResponse;
 import bitnagil.badge.repository.BadgeRepository;
 import bitnagil.user.domain.User;
 import bitnagil.user.repository.UserRepository;
@@ -33,15 +33,12 @@ public class BadgeService {
     }
 
     /**
-     * 해당 연·월에 획득한 활동 뱃지 목록을 조회합니다(순수 조회, 발급 로직 없음).
-     * 그 달에 획득한 뱃지가 하나도 없으면 "예비 전문가" 기본 뱃지 1건을 반환합니다(달마다 리셋).
+     * 해당 연·월에 획득한 활동 뱃지를 대표 칭호 + 아이콘 목록으로 조회합니다(순수 조회, 발급 로직 없음).
+     * 대표 칭호는 획득 개수로 결정됩니다(0개=예비 전문가, 1개=그 뱃지 자체, 2·3개=집계 칭호). 달마다 리셋됩니다.
      */
     @Transactional(readOnly = true)
-    public List<BadgeResponse> getMonthlyBadges(User user, YearMonth yearMonth) {
+    public MonthlyBadgeResponse getMonthlyBadges(User user, YearMonth yearMonth) {
         List<Badge> monthlyBadges = badgeRepository.findByUserAndBadgeYearMonthOrderByCreatedAtDesc(user, yearMonth);
-        if (monthlyBadges.isEmpty()) {
-            return List.of(badgeMapper.toReserveDefaultResponse());
-        }
-        return monthlyBadges.stream().map(badgeMapper::toBadgeResponse).toList();
+        return badgeMapper.toMonthlyBadgeResponse(monthlyBadges);
     }
 }
