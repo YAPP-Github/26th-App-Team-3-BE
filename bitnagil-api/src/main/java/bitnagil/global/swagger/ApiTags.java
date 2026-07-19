@@ -17,4 +17,5 @@ public class ApiTags {
     public static final String FILE = "파일 API";
     public static final String KPI = "KPI API";
     public static final String ACTIVITY_LOG = "활동일지 API";
+    public static final String YOUTH_POLICY = "청년 공고 API";
 }
