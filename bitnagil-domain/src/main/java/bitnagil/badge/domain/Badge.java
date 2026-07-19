@@ -40,8 +40,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Table(
     name = "badge",
     uniqueConstraints = @UniqueConstraint(
-        name = "uk_badge_user_type_year_month",
-        columnNames = {"user_id", "badge_type", "badge_year_month"}
+        name = "uk_badge_user_year_month_type",
+        columnNames = {"user_id", "badge_year_month", "badge_type"}
     )
 )
 public class Badge {

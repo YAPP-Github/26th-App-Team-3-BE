@@ -1,13 +1,19 @@
 package bitnagil.activityLog.controller;
 
 import bitnagil.activityLog.controller.spec.ActivityLogSpec;
-import bitnagil.activityLog.dto.response.MonthlyActivityLogResponse;
-import bitnagil.activityLog.service.ActivityLogService;
+import bitnagil.badge.dto.response.MonthlyBadgeResponse;
+import bitnagil.badge.service.BadgeService;
+import bitnagil.emotionMarble.dto.response.EmotionMarbleDailyResponse;
+import bitnagil.emotionMarble.service.EmotionMarbleService;
 import bitnagil.global.annotation.CurrentUser;
 import bitnagil.global.response.CustomResponseDto;
 import bitnagil.user.domain.User;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,14 +27,24 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/activity-logs")
 public class ActivityLogController implements ActivityLogSpec {
 
-    private final ActivityLogService activityLogService;
+    private final BadgeService badgeService;
+    private final EmotionMarbleService emotionMarbleService;
 
-    @GetMapping
-    public CustomResponseDto<MonthlyActivityLogResponse> getMonthlyActivityLog(
+    @GetMapping("/badges")
+    public CustomResponseDto<MonthlyBadgeResponse> getMonthlyBadges(
         @CurrentUser User user,
         @RequestParam @Min(2000) @Max(9999) int year,
         @RequestParam @Min(1) @Max(12) int month) {
 
-        return CustomResponseDto.from(activityLogService.getMonthlyActivityLog(user, year, month));
+        return CustomResponseDto.from(badgeService.getMonthlyBadges(user, YearMonth.of(year, month)));
+    }
+
+    @GetMapping("/emotion-marbles")
+    public CustomResponseDto<List<EmotionMarbleDailyResponse>> getDailyEmotionMarbles(
+        @CurrentUser User user,
+        @RequestParam @NotNull LocalDate startDate,
+        @RequestParam @NotNull LocalDate endDate) {
+
+        return CustomResponseDto.from(emotionMarbleService.getDailyEmotionMarbles(user, startDate, endDate));
     }
 }

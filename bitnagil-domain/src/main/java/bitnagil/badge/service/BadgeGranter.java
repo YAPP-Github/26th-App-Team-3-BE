@@ -10,6 +10,7 @@ import bitnagil.routineV2.repository.RoutineV2Repository;
 import bitnagil.user.domain.User;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -40,11 +41,17 @@ public class BadgeGranter {
     // 동시 수여 unique 위반이 호출자 트랜잭션을 rollback-only로 오염시키지 않도록 별도 트랜잭션으로 분리한다.
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void evaluateAndGrant(User user, BadgeTriggerAction action, YearMonth month) {
-        for (BadgeType type : BadgeType.grantableByAction(action)) {
-            if (badgeRepository.existsByUserAndBadgeTypeAndBadgeYearMonth(user, type, month)) {
-                continue;
-            }
-            if (countProgress(user, action, month) >= type.getThreshold()) {
+        List<BadgeType> missingTypes = BadgeType.grantableByAction(action).stream()
+            .filter(type -> !badgeRepository.existsByUserAndBadgeTypeAndBadgeYearMonth(user, type, month))
+            .toList();
+        if (missingTypes.isEmpty()) {
+            return;
+        }
+
+        // countProgress는 action·month에만 의존(type 무관)하므로, 미보유 타입이 있을 때 한 번만 계산해 공유한다.
+        long progress = countProgress(user, action, month);
+        for (BadgeType type : missingTypes) {
+            if (progress >= type.getThreshold()) {
                 badgeRepository.save(Badge.grant(user, type, month));
             }
         }
