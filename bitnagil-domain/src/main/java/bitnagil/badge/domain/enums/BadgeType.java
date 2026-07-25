@@ -16,25 +16,25 @@ import lombok.RequiredArgsConstructor;
 public enum BadgeType implements EnumType {
     MOTIVATION_EXPERT(
         "의욕 전문가",
-        "점점 감정에 솔직해지고 계시네요!",
+        "점점 감정에\n솔직해지고 계시네요!",
         BadgeTriggerAction.EMOTION_MARBLE_SELECT,
         3,
         "https://bitnagil-s3.s3.ap-northeast-2.amazonaws.com/badge_motivation.png"),
     CHECK_EXPERT(
         "체크 전문가",
-        "큰 성취를 이루셨군요, 대단해요!",
+        "큰 성취를\n이루셨군요, 대단해요!",
         BadgeTriggerAction.ROUTINE_COMPLETE,
         1,
         "https://bitnagil-s3.s3.ap-northeast-2.amazonaws.com/badge_check.png"),
     OUTING_EXPERT(
         "외출 전문가",
-        "덕분에 도시가 개선되고 있어요!",
+        "덕분에 도시가\n개선되고 있어요!",
         BadgeTriggerAction.REPORT_REGISTER,
         1,
         "https://bitnagil-s3.s3.ap-northeast-2.amazonaws.com/badge_reporter.png"),
     RESERVE_EXPERT(
         "예비 전문가",
-        "오늘, 작은 변화를 만들어볼까요?",
+        "오늘, 작은 변화를\n만들어볼까요?",
         null,
         0,
         "https://bitnagil-s3.s3.ap-northeast-2.amazonaws.com/badge_empty.png"),

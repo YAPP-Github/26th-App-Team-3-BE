@@ -15,8 +15,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public enum BadgeTier {
-    TWO(2, "능숙한 전문가", "하나만 더 모으면 이번 달이 완성돼요!"),
-    THREE(3, "완벽한 전문가", "꾸준함이 이번 달을 가득 채웠어요!"),
+    TWO(2, "능숙한 전문가", "하나만 더 모으면\n이번 달이 완성돼요!"),
+    THREE(3, "완벽한 전문가", "꾸준함이 이번 달을\n가득 채웠어요!"),
     ;
 
     private final int badgeCount;
