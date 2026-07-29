@@ -19,24 +19,29 @@ public enum BadgeType implements EnumType {
         "점점 감정에\n솔직해지고 계시네요!",
         BadgeTriggerAction.EMOTION_MARBLE_SELECT,
         3,
-        "https://bitnagil-s3.s3.ap-northeast-2.amazonaws.com/badge_motivation.png"),
+        "https://bitnagil-s3.s3.ap-northeast-2.amazonaws.com/badge_motivation.png",
+        "https://bitnagil-s3.s3.ap-northeast-2.amazonaws.com/badge_motivation_multi.png"),
     CHECK_EXPERT(
         "체크 전문가",
         "큰 성취를\n이루셨군요, 대단해요!",
         BadgeTriggerAction.ROUTINE_COMPLETE,
         1,
-        "https://bitnagil-s3.s3.ap-northeast-2.amazonaws.com/badge_check.png"),
+        "https://bitnagil-s3.s3.ap-northeast-2.amazonaws.com/badge_check.png",
+        "https://bitnagil-s3.s3.ap-northeast-2.amazonaws.com/badge_check_multi.png"),
     OUTING_EXPERT(
         "외출 전문가",
         "덕분에 도시가\n개선되고 있어요!",
         BadgeTriggerAction.REPORT_REGISTER,
         1,
-        "https://bitnagil-s3.s3.ap-northeast-2.amazonaws.com/badge_reporter.png"),
+        "https://bitnagil-s3.s3.ap-northeast-2.amazonaws.com/badge_reporter.png",
+        "https://bitnagil-s3.s3.ap-northeast-2.amazonaws.com/badge_reporter_multi.png"),
+    // RESERVE_EXPERT는 획득 0개일 때만 단독 표시되어 multi 분기를 절대 타지 않으므로, multi 이미지도 동일 URL로 둔다.
     RESERVE_EXPERT(
         "예비 전문가",
         "오늘, 작은 변화를\n만들어볼까요?",
         null,
         0,
+        "https://bitnagil-s3.s3.ap-northeast-2.amazonaws.com/badge_empty.png",
         "https://bitnagil-s3.s3.ap-northeast-2.amazonaws.com/badge_empty.png"),
     ;
 
@@ -45,6 +50,7 @@ public enum BadgeType implements EnumType {
     private final BadgeTriggerAction triggerAction;
     private final int threshold;
     private final String imageUrl;
+    private final String multiImageUrl;
 
     /**
      * 주어진 행동으로 발급 대상이 되는 뱃지 목록을 반환합니다. (RESERVE_EXPERT처럼 트리거가 없는 뱃지는 제외)

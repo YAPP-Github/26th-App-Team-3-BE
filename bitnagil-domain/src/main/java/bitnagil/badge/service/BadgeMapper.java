@@ -11,10 +11,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class BadgeMapper {
 
-    public BadgeResponse toBadgeResponse(Badge badge) {
+    public BadgeResponse toBadgeResponse(Badge badge, boolean multi) {
+        BadgeType type = badge.getBadgeType();
         return BadgeResponse.builder()
-            .badgeType(badge.getBadgeType())
-            .imageUrl(badge.getBadgeType().getImageUrl())
+            .badgeType(type)
+            .imageUrl(multi ? type.getMultiImageUrl() : type.getImageUrl())
             .acquiredAt(badge.getCreatedAt())
             .build();
     }
@@ -33,7 +34,8 @@ public class BadgeMapper {
      * 그 달 획득 뱃지 목록을 대표 칭호(badgeTitle/badgeDescription) + 아이콘 목록(badges)으로 묶습니다.
      * badges[] 항목은 아이콘 표시용이라 title/description을 담지 않으므로, 대표 칭호는 원본
      * {@link Badge}/{@link BadgeType}에서 직접 계산합니다: 0개=예비 전문가, 1개=그 뱃지 자체,
-     * 2개 이상=집계 칭호({@link BadgeTier}).
+     * 2개 이상=집계 칭호({@link BadgeTier}). 2개 이상일 때는 badges[]의 각 아이콘도
+     * {@link BadgeType#getMultiImageUrl()} 버전으로 바뀝니다(여러 개가 함께 보이는 전용 이미지).
      */
     public MonthlyBadgeResponse toMonthlyBadgeResponse(List<Badge> monthlyBadges) {
         if (monthlyBadges.isEmpty()) {
@@ -47,6 +49,7 @@ public class BadgeMapper {
 
         String badgeTitle;
         String badgeDescription;
+        boolean multi = monthlyBadges.size() >= 2;
         if (monthlyBadges.size() == 1) {
             BadgeType type = monthlyBadges.get(0).getBadgeType();
             badgeTitle = type.getTitle();
@@ -60,7 +63,7 @@ public class BadgeMapper {
         return MonthlyBadgeResponse.builder()
             .badgeTitle(badgeTitle)
             .badgeDescription(badgeDescription)
-            .badges(monthlyBadges.stream().map(this::toBadgeResponse).toList())
+            .badges(monthlyBadges.stream().map(badge -> toBadgeResponse(badge, multi)).toList())
             .build();
     }
 }
