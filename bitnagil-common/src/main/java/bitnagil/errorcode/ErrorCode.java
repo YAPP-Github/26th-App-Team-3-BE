@@ -90,7 +90,14 @@ public enum ErrorCode {
     NOT_FOUND_REPORT("RP001", HttpStatus.NOT_FOUND, "존재하지 않는 제보입니다."),
 
     // 안드로이드 버전 관련 에러코드
-    NOT_FOUND_ANDROID_APP_VERSION("AAV001", HttpStatus.NOT_FOUND, "안드로이드 앱 버전을 찾을 수 없습니다.");
+    NOT_FOUND_ANDROID_APP_VERSION("AAV001", HttpStatus.NOT_FOUND, "안드로이드 앱 버전을 찾을 수 없습니다."),
+
+    // 청년 공고 관련 에러코드
+    YOUTHCENTER_FEIGN_CALL_FAILED("AN000", HttpStatus.BAD_GATEWAY, "온통청년 API 호출에 실패했습니다."),
+    YOUTHCENTER_INVALID_RESPONSE("AN001", HttpStatus.BAD_GATEWAY, "온통청년 API 응답이 올바르지 않습니다."),
+    INVALID_YOUTH_POLICY_CURSOR("AN002", HttpStatus.BAD_REQUEST, "잘못된 커서 값입니다."),
+    VWORLD_FEIGN_CALL_FAILED("AN003", HttpStatus.BAD_GATEWAY, "주소 변환 API 호출에 실패했습니다."),
+    LOCATION_NOT_RESOLVED("AN004", HttpStatus.BAD_REQUEST, "위치를 시군구로 변환하지 못했습니다.");
 
 
 

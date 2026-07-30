@@ -86,6 +86,16 @@ public class CacheConfig {
                                 )
                                 .serializeValuesWith(
                                         RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer(redisObjectMapper))
+                                ))
+                .withCacheConfiguration("youthPolicyAll",
+                        RedisCacheConfiguration.defaultCacheConfig()
+                                .entryTtl(Duration.ofHours(26)) // 매일 새벽 갱신 주기보다 길게 유지(갱신 실패 시 stale 서빙)
+                                .disableCachingNullValues()
+                                .serializeKeysWith(
+                                        RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer())
+                                )
+                                .serializeValuesWith(
+                                        RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer(redisObjectMapper))
                                 ));
     }
 }
