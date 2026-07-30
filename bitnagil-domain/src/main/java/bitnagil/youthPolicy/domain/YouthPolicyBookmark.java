@@ -14,18 +14,14 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
 
 /**
  * 사용자가 찜한 청년 공고입니다. 공고 원본은 저장하지 않고 공고 번호(plcyNo)만 저장합니다.
- * 찜 해제는 소프트 삭제이며, 같은 공고를 다시 찜하면 tombstone 행을 되살립니다.
+ * 찜 해제는 하드 삭제이며, 같은 공고를 다시 찜하면 새 행으로 등록됩니다(bookmarkId 재발급 → 최근순 유지).
  */
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE youth_policy_bookmark SET deleted_at = NOW() WHERE bookmark_id = ?")
-@Where(clause = "deleted_at IS NULL")
 public class YouthPolicyBookmark extends BaseTimeEntity {
 
     @Id

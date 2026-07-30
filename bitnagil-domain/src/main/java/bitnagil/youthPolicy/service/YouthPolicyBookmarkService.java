@@ -42,26 +42,19 @@ public class YouthPolicyBookmarkService {
     }
 
     /**
-     * 공고를 찜합니다. 이미 찜했으면 아무 것도 하지 않고, 해제했던(tombstone) 공고면 되살립니다.
+     * 공고를 찜합니다. 이미 찜한 상태면 no-op(멱등), 아니면 새 행으로 등록합니다.
+     * 더블탭·네트워크 재시도로 동일 요청이 겹쳐도 upsert가 UNIQUE 충돌을 no-op으로 흡수합니다.
      */
     @Transactional
     public void bookmark(User user, String plcyNo) {
-        if (youthPolicyBookmarkRepository.existsByUserAndPlcyNo(user, plcyNo)) {
-            return; // 이미 찜 상태 → no-op
-        }
-        int resurrected = youthPolicyBookmarkRepository.resurrectByUserAndPlcyNo(user.getUserId(), plcyNo);
-        if (resurrected == 0) {
-            youthPolicyBookmarkRepository.save(
-                YouthPolicyBookmark.builder().user(user).plcyNo(plcyNo).build());
-        }
+        youthPolicyBookmarkRepository.upsertBookmark(user.getUserId(), plcyNo);
     }
 
     /**
-     * 찜을 해제합니다(소프트 삭제). 찜 상태가 아니면 아무 것도 하지 않습니다.
+     * 찜을 해제합니다(하드 삭제). 찜 상태가 아니면 아무 것도 하지 않습니다.
      */
     @Transactional
     public void unbookmark(User user, String plcyNo) {
-        youthPolicyBookmarkRepository.findByUserAndPlcyNo(user, plcyNo)
-            .ifPresent(youthPolicyBookmarkRepository::delete);
+        youthPolicyBookmarkRepository.deleteByUserAndPlcyNo(user, plcyNo);
     }
 }

@@ -8,23 +8,22 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface YouthPolicyBookmarkRepository extends JpaRepository<YouthPolicyBookmark, Long> {
 
     // bookmarkId 내림차순 = 최근 찜한 순.
     List<YouthPolicyBookmark> findAllByUserOrderByBookmarkIdDesc(User user);
 
-    boolean existsByUserAndPlcyNo(User user, String plcyNo);
-
-    Optional<YouthPolicyBookmark> findByUserAndPlcyNo(User user, String plcyNo);
-
     /**
-     * 소프트 삭제된(tombstone) 찜을 되살립니다. @Where를 우회해야 하므로 네이티브 쿼리로 처리합니다.
-     * @return 되살린 행 수(0이면 되살릴 tombstone이 없음)
+     * 찜을 멱등하게 등록합니다. 이미 찜한 상태(UNIQUE 충돌)면 no-op으로 흡수해
+     * 더블탭·재시도로 인한 UNIQUE 위반 예외(→ Slack 알림)를 막습니다.
      */
     @Modifying
-    @Query(value = "UPDATE youth_policy_bookmark SET deleted_at = NULL "
-        + "WHERE user_id = :userId AND plcy_no = :plcyNo AND deleted_at IS NOT NULL", nativeQuery = true)
-    int resurrectByUserAndPlcyNo(@Param("userId") Long userId, @Param("plcyNo") String plcyNo);
+    @Query(value = "INSERT INTO youth_policy_bookmark (user_id, plcy_no, created_at) "
+        + "VALUES (:userId, :plcyNo, NOW()) "
+        + "ON DUPLICATE KEY UPDATE updated_at = NOW()", nativeQuery = true)
+    void upsertBookmark(@Param("userId") Long userId, @Param("plcyNo") String plcyNo);
+
+    // 하드 삭제. 없으면 0건 삭제로 멱등.
+    long deleteByUserAndPlcyNo(User user, String plcyNo);
 }
