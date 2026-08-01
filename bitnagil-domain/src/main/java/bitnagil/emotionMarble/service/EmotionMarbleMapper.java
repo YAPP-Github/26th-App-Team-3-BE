@@ -47,7 +47,7 @@ public class EmotionMarbleMapper {
             .date(emotionMarble.getDate())
             .emotionMarbleType(emotionMarbleType)
             .emotionMarbleName(emotionMarbleType.getDescription())
-            .imageUrl(emotionMarbleType.getMarbleImageUrl())
+            .imageUrl(emotionMarbleType.getActivityLogImageUrl())
             .build();
     }
 }

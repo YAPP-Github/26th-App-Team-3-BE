@@ -20,6 +20,6 @@ public class EmotionMarbleDailyResponse {
     @Schema(description = "감정 구슬 명칭", example = "평온함")
     private String emotionMarbleName;
 
-    @Schema(description = "감정 구슬 이미지 URL", example = "https://example.com/marble_calm.png")
+    @Schema(description = "활동일지용 감정 구슬 이미지 URL", example = "https://example.com/activity_log_calm.png")
     private String imageUrl;
 }
