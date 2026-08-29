@@ -1,0 +1,104 @@
+name: Deploy to Amazon ECS - Monitoring
+
+# release, develop 브랜치에 푸시되거나 PR이 닫힐 때마다 실행되는 워크플로우입니다.
+on:
+  push:
+    branches:
+      - "release"
+      - "develop"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+
+      # 1. 소스코드 체크아웃(환경변수(yml)가 있는 서브모듈 가져오기)
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.ACTION_TOKEN }}
+          submodules: true
+
+      # 2. AWS 자격 증명 구성
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      # 3. Amazon ECR에 로그인
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # 4. Prometheus 설정 파일 복사 (환경별)
+      - name: Prepare Prometheus config - release
+        if: github.ref == 'refs/heads/release'
+        run: cp config/prod/application-prometheus-prod.yml ./prometheus.yml
+
+      - name: Prepare Prometheus config - develop
+        if: github.ref == 'refs/heads/develop'
+        run: cp config/dev/application-prometheus-dev.yml ./prometheus.yml
+
+      # 5. Prometheus Docker 이미지 빌드 & 푸시
+      - name: Build Prometheus image - release
+        if: github.ref == 'refs/heads/release'
+        id: build-prometheus-release
+        run: |
+          docker build --platform linux/amd64 -f deploy/monitoring/Dockerfile -t ${{ secrets.ECR_REPO_NAME_PROMETHEUS_PROD }} .
+          docker tag ${{ secrets.ECR_REPO_NAME_PROMETHEUS_PROD }}:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME_PROMETHEUS_PROD }}:latest
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME_PROMETHEUS_PROD }}:latest
+          echo "image=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME_PROMETHEUS_PROD }}:latest" >> $GITHUB_OUTPUT
+
+      - name: Build Prometheus image - develop
+        if: github.ref == 'refs/heads/develop'
+        id: build-prometheus-dev
+        run: |
+          docker build --platform linux/amd64 -f deploy/monitoring/Dockerfile -t ${{ secrets.ECR_REPO_NAME_PROMETHEUS_DEV }} .
+          docker tag ${{ secrets.ECR_REPO_NAME_PROMETHEUS_DEV }}:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME_PROMETHEUS_DEV }}:latest
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME_PROMETHEUS_DEV }}:latest
+          echo "image=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME_PROMETHEUS_DEV }}:latest" >> $GITHUB_OUTPUT
+
+      # 6. ECS Task Definition에 Prometheus 이미지 주입
+      - name: Render ECS task definition (monitoring) - release
+        if: github.ref == 'refs/heads/release'
+        id: task-def-monitoring-prod
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: deploy/ecs/task-definition-monitoring-prod.json
+          container-name: prometheus
+          image: ${{ steps.build-prometheus-release.outputs.image }}
+
+      - name: Render ECS task definition (monitoring) - dev
+        if: github.ref == 'refs/heads/develop'
+        id: task-def-monitoring-dev
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: deploy/ecs/task-definition-monitoring-dev.json
+          container-name: prometheus
+          image: ${{ steps.build-prometheus-dev.outputs.image }}
+
+
+      # 7. ECS 서비스 배포
+      - name: Deploy Monitoring to ECS - release
+        if: github.ref == 'refs/heads/release'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def-monitoring-prod.outputs.task-definition }}
+          service: ${{ secrets.ECS_SERVICE_NAME_PROMETHEUS_PROD}}
+          cluster: ${{ secrets.ECS_CLUSTER_NAME }}
+          wait-for-service-stability: true
+
+      - name: Deploy Monitoring to ECS - dev
+        if: github.ref == 'refs/heads/develop'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def-monitoring-dev.outputs.task-definition }}
+          service: ${{ secrets.ECS_SERVICE_NAME_PROMETHEUS_DEV }}
+          cluster: ${{ secrets.ECS_CLUSTER_NAME }}
+          wait-for-service-stability: true

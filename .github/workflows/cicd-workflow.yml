@@ -30,26 +30,26 @@ jobs:
           token: ${{ secrets.ACTION_TOKEN }}
           submodules: true
 
-      # 2-1. 환경변수(yml) 파일이 있는지 확인
-      - name: Check if config files exist - dev
-        if: github.ref == 'refs/heads/develop'
-        run: |
-          echo "Current Directory: $(pwd)"
-          cd config
-          echo "Current Directory: $(pwd)"
-          cd dev
-          echo "Current Directory: $(pwd)"
-          ls -al
-
-      - name: Check if config files exist - prod
-        if: github.ref == 'refs/heads/release'
-        run: |
-          echo "Current Directory: $(pwd)"
-          cd config
-          echo "Current Directory: $(pwd)"
-          cd prod
-          echo "Current Directory: $(pwd)"
-          ls -al
+#      # 2-1. 환경변수(yml) 파일이 있는지 확인
+#      - name: Check if config files exist - dev
+#        if: github.ref == 'refs/heads/develop'
+#        run: |
+#          echo "Current Directory: $(pwd)"
+#          cd config
+#          echo "Current Directory: $(pwd)"
+#          cd dev
+#          echo "Current Directory: $(pwd)"
+#          ls -al
+#
+#      - name: Check if config files exist - prod
+#        if: github.ref == 'refs/heads/release'
+#        run: |
+#          echo "Current Directory: $(pwd)"
+#          cd config
+#          echo "Current Directory: $(pwd)"
+#          cd prod
+#          echo "Current Directory: $(pwd)"
+#          ls -al
 
       # 3. AWS 자격 증명 구성
       - name: Configure AWS credentials
@@ -65,56 +65,56 @@ jobs:
 #          sudo apt-get update
 #          sudo apt-get install -y awscli
 
-      # AWS SSM으로 현재 redis의 포트 확인 커멘드 설정
-      - name: Get Redis port from AWS SSM
-        if: github.ref == 'refs/heads/develop'
-        id: send_cmd
-        run: |
-          cmd_id=$(aws ssm send-command \
-            --document-name "AWS-RunShellScript" \
-            --targets "Key=instanceIds,Values=${{ secrets.EC2_INSTANCE_ID }}" \
-            --comment "Deploy script via CI" \
-            --parameters 'commands=[
-              "if netstat -tuln | grep -q \":6379 \"; then echo 6379; \
-              elif netstat -tuln | grep -q \":6380 \"; then echo 6380; \
-              else echo none; fi"
-            ]' \
-            --region ap-northeast-2 \
-            --query "Command.CommandId" --output text)
-          echo "cmd_id=$cmd_id" >> $GITHUB_OUTPUT    
-
-      # AWS SSM 커멘드를 실행하여 현재 redis의 포트 확인 및 교체할 port 저장
-      - name: Get Redis port command result
-        if: github.ref == 'refs/heads/develop'
-        id: get_cmd_result
-        run: |
-          redis_port=$(aws ssm get-command-invocation \
-            --command-id ${{ steps.send_cmd.outputs.cmd_id }} \
-            --instance-id ${{ secrets.EC2_INSTANCE_ID }} \
-            --region ap-northeast-2 \
-            --query 'StandardOutputContent' \
-            --output text | tr -d '\n')
-          echo "현재 열려있는 Redis 포트: $redis_port"
-          if [ "$redis_port" = "6379" ]; then
-          next_port="6380"
-          elif [ "$redis_port" = "6380" ]; then
-          next_port="6379"
-          else
-          next_port="6379"
-          echo "Redis를 신규로 띄웁니다"
-          fi
-          echo "next_redis_port=$next_port" >> $GITHUB_OUTPUT
-
-      # 호스트 포트 수정
-      - name: Update Redis hostPort in task-definition-dev.json
-        if: github.ref == 'refs/heads/develop'
-        run: | 
-          jq --arg port "${{ steps.get_cmd_result.outputs.next_redis_port }}" \
-            '(.containerDefinitions[] | select(.name == "redis-dev").portMappings[] | select(.containerPort == 6379)).hostPort = ($port | tonumber)' \
-            task-definition-dev.json > tmp.json && mv tmp.json task-definition-dev.json
-          
-          echo "수정된 task-definition.json의 Redis portMappings:"
-          jq '.containerDefinitions[] | select(.name == "redis-dev") | .portMappings[].hostPort' task-definition-dev.json    
+#      # AWS SSM으로 현재 redis의 포트 확인 커멘드 설정
+#      - name: Get Redis port from AWS SSM
+#        if: github.ref == 'refs/heads/develop'
+#        id: send_cmd
+#        run: |
+#          cmd_id=$(aws ssm send-command \
+#            --document-name "AWS-RunShellScript" \
+#            --targets "Key=instanceIds,Values=${{ secrets.EC2_INSTANCE_ID }}" \
+#            --comment "Deploy script via CI" \
+#            --parameters 'commands=[
+#              "if netstat -tuln | grep -q \":6379 \"; then echo 6379; \
+#              elif netstat -tuln | grep -q \":6380 \"; then echo 6380; \
+#              else echo none; fi"
+#            ]' \
+#            --region ap-northeast-2 \
+#            --query "Command.CommandId" --output text)
+#          echo "cmd_id=$cmd_id" >> $GITHUB_OUTPUT
+#
+#      # AWS SSM 커멘드를 실행하여 현재 redis의 포트 확인 및 교체할 port 저장
+#      - name: Get Redis port command result
+#        if: github.ref == 'refs/heads/develop'
+#        id: get_cmd_result
+#        run: |
+#          redis_port=$(aws ssm get-command-invocation \
+#            --command-id ${{ steps.send_cmd.outputs.cmd_id }} \
+#            --instance-id ${{ secrets.EC2_INSTANCE_ID }} \
+#            --region ap-northeast-2 \
+#            --query 'StandardOutputContent' \
+#            --output text | tr -d '\n')
+#          echo "현재 열려있는 Redis 포트: $redis_port"
+#          if [ "$redis_port" = "6379" ]; then
+#          next_port="6380"
+#          elif [ "$redis_port" = "6380" ]; then
+#          next_port="6379"
+#          else
+#          next_port="6379"
+#          echo "Redis를 신규로 띄웁니다"
+#          fi
+#          echo "next_redis_port=$next_port" >> $GITHUB_OUTPUT
+#
+#      # 호스트 포트 수정
+#      - name: Update Redis hostPort in task-definition-dev.json
+#        if: github.ref == 'refs/heads/develop'
+#        run: |
+#          jq --arg port "${{ steps.get_cmd_result.outputs.next_redis_port }}" \
+#            '(.containerDefinitions[] | select(.name == "redis-dev").portMappings[] | select(.containerPort == 6379)).hostPort = ($port | tonumber)' \
+#            task-definition-dev.json > tmp.json && mv tmp.json task-definition-dev.json
+#
+#          echo "수정된 task-definition.json의 Redis portMappings:"
+#          jq '.containerDefinitions[] | select(.name == "redis-dev") | .portMappings[].hostPort' task-definition-dev.json
 
 #      - name: Update spring.data.redis.port in application.yml
 #        if: github.ref == 'refs/heads/develop'
@@ -133,8 +133,8 @@ jobs:
         run: chmod +x ./gradlew
 
       # 6. Gradle로 빌드
-      - name: Build with Gradle
-        run: ./gradlew clean build
+      - name: Build app jar with Gradle
+        run: ./gradlew clean :bitnagil-api:bootJar
 
       # 7. Amazon ECR에 로그인
       - name: Login to Amazon ECR
@@ -146,7 +146,7 @@ jobs:
         if: github.ref == 'refs/heads/release'
         id: build-image-release
         run: |
-          docker build --platform linux/amd64 -t ${{ secrets.ECR_REPO_NAME_PROD }} . 
+          docker build --platform linux/amd64 -f deploy/docker/Dockerfile -t ${{ secrets.ECR_REPO_NAME_PROD }} .
           docker tag ${{ secrets.ECR_REPO_NAME_PROD }}:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME_PROD }}:latest  # 이미지를 ECR 리포지토리로 태깅합니다.
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME_PROD }}:latest  # 이미지를 ECR에 푸시합니다.
           echo "image=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME_PROD }}:latest" >> $GITHUB_OUTPUT
@@ -155,10 +155,31 @@ jobs:
         if: github.ref == 'refs/heads/develop'
         id: build-image-develop
         run: |
-          docker build --platform linux/amd64 -t ${{ secrets.ECR_REPO_NAME_DEV }} . 
+          docker build --platform linux/amd64 -f deploy/docker/Dockerfile -t ${{ secrets.ECR_REPO_NAME_DEV }} .
           docker tag ${{ secrets.ECR_REPO_NAME_DEV }}:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME_DEV }}:latest  # 이미지를 ECR 리포지토리로 태깅합니다.
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME_DEV }}:latest  # 이미지를 ECR에 푸시합니다.
           echo "image=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME_DEV }}:latest" >> $GITHUB_OUTPUT          
+
+#      # 8-1. Prometheus Docker 이미지 빌드 및 푸시
+#      - name: Build Prometheus image - release
+#        if: github.ref == 'refs/heads/release'
+#        id: build-prom-image-release
+#        run: |
+#          cp config/prod/application-prometheus-prod.yml ./prometheus.yml
+#          docker build --platform linux/amd64 -f monitoring/Dockerfile -t ${{ secrets.ECR_REPO_NAME_PROMETHEUS_PROD }} .
+#          docker tag ${{ secrets.ECR_REPO_NAME_PROMETHEUS_PROD }}:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME_PROMETHEUS_PROD }}:latest
+#          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME_PROMETHEUS_PROD }}:latest
+#          echo "image=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME_PROMETHEUS_PROD }}:latest" >> $GITHUB_OUTPUT
+#
+#      - name: Build Prometheus image - develop
+#        if: github.ref == 'refs/heads/develop'
+#        id: build-prom-image-develop
+#        run: |
+#          cp config/dev/application-prometheus-dev.yml ./prometheus.yml
+#          docker build --platform linux/amd64 -f monitoring/Dockerfile -t ${{ secrets.ECR_REPO_NAME_PROMETHEUS_DEV }} .
+#          docker tag ${{ secrets.ECR_REPO_NAME_PROMETHEUS_DEV }}:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME_PROMETHEUS_DEV }}:latest
+#          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME_PROMETHEUS_DEV }}:latest
+#          echo "image=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPO_NAME_PROMETHEUS_DEV }}:latest" >> $GITHUB_OUTPUT
 
       # 9. Amazon ECS 태스크 정의에 새 이미지 ID 채우기
       - name: Fill in the new image ID in the Amazon ECS task definition - release
@@ -166,25 +187,45 @@ jobs:
         id: task-def-release
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: task-definition-prod.json
+          task-definition: deploy/ecs/task-definition-prod.json
           container-name: ${{ secrets.ECS_CONTAINER_NAME_PROD }}
           image: ${{ steps.build-image-release.outputs.image }}
 
-      - name: Mask ECS container name secret - release
-        if: github.ref == 'refs/heads/release'
-        run: |
-          echo "ECS_CONTAINER_NAME_PROD is ${{ secrets.ECS_CONTAINER_NAME_PROD }}"
-          echo "Container Names in task-definition-prod.json:"
-          cat task-definition-prod.json | jq -r '.containerDefinitions[].name'
+#      # ★ 추가: 프로메테우스 이미지 주입 (release)
+#      - name: Fill in Prometheus image - release
+#        if: github.ref == 'refs/heads/release'
+#        id: task-def-prom-release
+#        uses: aws-actions/amazon-ecs-render-task-definition@v1
+#        with:
+#          task-definition: ${{ steps.task-def-release.outputs.task-definition }} # 위 단계에서 만든 결과물을 입력으로 사용
+#          container-name: prometheus
+#          image: ${{ steps.build-prom-image-release.outputs.image }}
+#
+#      - name: Mask ECS container name secret - release
+#        if: github.ref == 'refs/heads/release'
+#        run: |
+#          echo "ECS_CONTAINER_NAME_PROD is ${{ secrets.ECS_CONTAINER_NAME_PROD }}"
+#          echo "Container Names in task-definition-prod.json:"
+#          cat task-definition-prod.json | jq -r '.containerDefinitions[].name'
 
       - name: Fill in the new image ID in the Amazon ECS task definition - develop
         if: github.ref == 'refs/heads/develop'
         id: task-def-develop
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: task-definition-dev.json
+          task-definition: deploy/ecs/task-definition-dev.json
           container-name: ${{ secrets.ECS_CONTAINER_NAME_DEV }}
           image: ${{ steps.build-image-develop.outputs.image }}
+
+#      # ★ 추가: 프로메테우스 이미지 주입 (develop)
+#      - name: Fill in Prometheus image - develop
+#        if: github.ref == 'refs/heads/develop'
+#        id: task-def-prom-develop
+#        uses: aws-actions/amazon-ecs-render-task-definition@v1
+#        with:
+#          task-definition: ${{ steps.task-def-develop.outputs.task-definition }} # 위 단계에서 만든 결과물을 입력으로 사용
+#          container-name: prometheus
+#          image: ${{ steps.build-prom-image-develop.outputs.image }}
 
       # 10. ECS에 배포
       - name: Deploy to ECS - release

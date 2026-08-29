@@ -1,96 +1,16 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.5.0'
-	id 'io.spring.dependency-management' version '1.1.7'
-	id 'org.flywaydb.flyway' version '10.14.0'
+	id 'base'
 }
 
-group = 'bitnagil'
-version = '0.0.1-SNAPSHOT'
-
-java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
+ext {
+	swaggerAnnotationsVersion = '2.2.30'
 }
 
-repositories {
-	mavenCentral()
-}
+allprojects {
+	group = 'bitnagil'
+	version = '0.0.1-SNAPSHOT'
 
-dependencyManagement {
-	imports {
-		mavenBom "org.springframework.cloud:spring-cloud-dependencies:2025.0.0"
-	}
-}
-
-dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation "org.springframework.boot:spring-boot-starter-oauth2-client"
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
-
-	// jwt
-    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-    implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
-    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
-
-	runtimeOnly 'com.mysql:mysql-connector-j'
-
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-	// Lombok
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
-
-	// Validation
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-
-	// redis
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-
-	// Swagger
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
-
-	// slack
-	implementation 'com.slack.api:slack-api-client:1.45.3'
-
-	// bouncycastle
-	implementation 'org.bouncycastle:bcpkix-jdk18on:1.80'
-
-	// aws
-	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
-
-	// flyway
-	implementation 'org.flywaydb:flyway-core'
-	implementation 'org.flywaydb:flyway-mysql'
-
-	// cache
-	implementation 'org.springframework.boot:spring-boot-starter-cache'
-
-}
-
-tasks.named('test') {
-	useJUnitPlatform()
-}
-
-// 서브모듈의 yml 파일을 resources 디렉토리로 복사
-processResources {
-	from('./config/local') {
-		include 'application-local.yml'
-		into ''
-	}
-
-	from('./config/dev') {
-		include 'application-dev.yml'
-		into ''
-	}
-
-	from('./config/prod') {
-		include 'application-prod.yml'
-		into ''
+	repositories {
+		mavenCentral()
 	}
 }
